@@ -1,12 +1,15 @@
+package tasks;
+
 public class Task {
-    String name;
-    String description;
-    Status condition;
+    protected final String name;
+    protected final String description;
+    protected Status condition;
 
     public Task(String name, String description, Status condition) {
         this.name = name;
         this.description = description;
         this.condition = condition;
+
     }
 
     public void setCondition(Status condition) {
@@ -19,9 +22,9 @@ public class Task {
 
     @Override
     public String toString() {
-        return "{ Название = '" + name + "', "
-                + "Описание ='" + description + "', "
-                + "Статус = " + condition
-                + " }";
+        return "ЗАДАЧА. " +
+                "Название = '" + name + "', " +
+                "Описание ='" + description + "', " +
+                "Статус = " + condition + "\n";
     }
 }

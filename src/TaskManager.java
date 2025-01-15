@@ -1,12 +1,14 @@
-import java.util.HashMap;
+import tasks.*;
+
 import java.util.ArrayList;
+import java.util.HashMap;
+
 
 public class TaskManager {
-    int counterId = 0;
-    int foundId = 0; //Временно хранит id эпика в процессе обновления подзадачи
-    HashMap<Integer, Task> tableForTasks = new HashMap<>();
-    HashMap<Integer, Epic> tableForEpics = new HashMap<>();
-    ArrayList<Integer> existingId = new ArrayList<>();
+    private int counterId = 0;
+    private final HashMap<Integer, Epic> storageEpics = new HashMap<>();
+    private final HashMap<Integer, Task> storageTasks = new HashMap<>();
+    private final HashMap<Integer, Subtask> storageSubtasks = new HashMap<>();
 
     public int getCounterId() {
         return counterId;
@@ -16,203 +18,169 @@ public class TaskManager {
         counterId = counterId + 1;
     }
 
-    public void setToZeroFoundId() {
-        this.foundId = 0;
-    }
-
-    void createTask(String name, String description, String statusTask) {
-        Status condition = Status.valueOf(statusTask);
+    public void createTask(Task inputTask) {
         setCounterId();
         int id = getCounterId();
-        tableForTasks.put(id, new Task(name, description, condition));
-        existingId.add(id);
+        storageTasks.put(id, inputTask);
     }
 
-    void updateTask(Integer id, String name, String description, String statusTask) {
-        Status condition = Status.valueOf(statusTask);
-        tableForTasks.put(id, new Task(name, description, condition));
-    }
-
-    void createEpic(String name, String description) {
+    public void createEpic(Epic inputEpic) {
         setCounterId();
         int id = getCounterId();
-        tableForEpics.put(id, new Epic(name, description, Status.NEW));
-        existingId.add(id);
+        storageEpics.put(id, inputEpic);
     }
 
-    void updateEpic(Integer id, String name, String description) {
-        tableForEpics.put(id, new Epic(name, description, Status.NEW));
-
-    }
-
-    boolean createSubtask(int idEpic, String name, String description, String statusTask) {
-        Status condition = Status.valueOf(statusTask);
+    public void createSubtask(int idEpic, Subtask inputSubtask) {
         setCounterId();
         int id = getCounterId();
-        if (checkIdEpic(idEpic)) {
-            Epic temp = tableForEpics.get(idEpic);
-            Subtask subtask = new Subtask(name, description, condition);
-            temp.tableForSubtasks.put(id, subtask);
-            existingId.add(id);
-            calculateStatusEpic(idEpic);
-            return true;
-        }
-        return false;
-    }
-
-    void updateSubtask(Integer id, String name, String description, String statusTask) {
-        Status condition = Status.valueOf(statusTask);
-        Integer idEpic = foundId;
-        setToZeroFoundId();
-        Epic temp = tableForEpics.get(idEpic);
-        Subtask subtask = new Subtask(name, description, condition);
-        temp.tableForSubtasks.put(id, subtask);
+        storageSubtasks.put(id, inputSubtask);
         calculateStatusEpic(idEpic);
     }
 
-    void getListTasks() {
-        System.out.println("Список всех задач");
-        for (int element : tableForEpics.keySet()) {
-            System.out.println("ЭПИК. Id = " + element);
-            Epic obj = tableForEpics.get(element);
-            System.out.println(obj);
-            for (int key : obj.tableForSubtasks.keySet()) {
-                System.out.println("Подзадача. Id = " + key);
-                Subtask subtask = obj.tableForSubtasks.get(key);
-                System.out.println(subtask);
-            }
-        }
-        for (int elem : tableForTasks.keySet()) {
-            System.out.println("ЗАДАЧА.  Id = " + elem);
-            Task task = tableForTasks.get(elem);
-            System.out.println(task);
-        }
+    public void updateTask(int id, Task inputTask) {
+        storageTasks.put(id, inputTask);
     }
 
-    void removeAll() {
-        tableForTasks.clear();
-        tableForEpics.clear();
-        existingId.clear();
+    public void updateEpic(int id, Epic inputEpic) {
+        storageEpics.put(id, inputEpic);
     }
 
-    boolean checkId(int search) {
-        return existingId.contains(search);
+    public void updateSubtask(int id, Subtask inputSubtask, int idEpic) {
+        storageSubtasks.put(id, inputSubtask);
+        calculateStatusEpic(idEpic);
     }
 
-    boolean checkIdEpic(int idEpic) {
-        return tableForEpics.containsKey(idEpic);
+    public int receiveIdenEpic(int search) {
+        Subtask currentEpic = storageSubtasks.get(search);
+        return currentEpic.getIdenEpic();
     }
 
-    Task getById(Integer search) {
-        for (Integer element : tableForEpics.keySet()) {
-            if (element.equals(search)) {
-                return tableForEpics.get(element);
-            }
-            Epic obj = tableForEpics.get(element);
-            for (Integer key : obj.tableForSubtasks.keySet()) {
-                if (key.equals(search)) {
-                    return obj.tableForSubtasks.get(key);
-                }
+    public HashMap<Integer, Epic> getEpics() {
+        return storageEpics;
+    }
+
+    public HashMap<Integer, Task> getTasks() {
+        return storageTasks;
+    }
+
+    public HashMap<Integer, Subtask> getSubtasks() {
+        return storageSubtasks;
+    }
+
+    public void removeAll() {
+        storageTasks.clear();
+        storageEpics.clear();
+        storageSubtasks.clear();
+    }
+
+    public boolean checkIdTask(int idTask) {
+        return storageTasks.containsKey(idTask);
+    }
+
+    public boolean checkIdSubtask(int idSubtask) {
+        return storageSubtasks.containsKey(idSubtask);
+    }
+
+    public boolean checkIdEpic(int idEpic) {
+        return storageEpics.containsKey(idEpic);
+    }
+
+    public int removeByIdEpic(int search) {
+        storageEpics.remove(search);
+        return deleteSubtask(search);
+    }
+
+    public void removeByIdTask(int search) {
+        storageTasks.remove(search);
+    }
+
+    public void removeByIdSubtask(int search, int idEpic) {
+        storageSubtasks.remove(search);
+        calculateStatusEpic(idEpic);
+    }
+
+    // При удалении эпика метод удаляет все его подзадачи
+    public int deleteSubtask(int idEpic) {
+        Integer identifier;
+        ArrayList<Integer> del = new ArrayList<>();
+        for (Integer element : storageSubtasks.keySet()) {
+            Subtask temp = storageSubtasks.get(element);
+            identifier = temp.getIdenEpic();
+            if (identifier.equals(idEpic)) {
+                del.add(element);
             }
         }
-        for (Integer element : tableForTasks.keySet()) {
-            if (element.equals(search)) {
-                return tableForTasks.get(element);
-            }
+        for (int i = 0; i < del.size(); i++) {
+            int r = del.get(i);
+            storageSubtasks.remove(r);
         }
-        return null;
+        return del.size();
     }
 
-    void removeById(Integer search) {
-        for (Integer element : tableForEpics.keySet()) {
-            if (element.equals(search)) {
-                tableForEpics.remove(element);
-                deleteId(search);
-                return;
-            }
-            Epic obj = tableForEpics.get(element);
-            for (Integer key : obj.tableForSubtasks.keySet()) {
-                if (key.equals(search)) {
-                    obj.tableForSubtasks.remove(key);
-                    deleteId(search);
-                    calculateStatusEpic(element);
-                    return;
-                }
-            }
+    public int findOutClassObject(int search) {
+        int type = 0;
+        if (checkIdEpic(search)) {
+            type = 1;
         }
-        for (Integer element : tableForTasks.keySet()) {
-            if (element.equals(search)) {
-                tableForTasks.remove(element);
-                deleteId(search);
-            }
+        if (checkIdTask(search)) {
+            type = 2;
         }
-    }
-
-    void deleteId(int search) {
-        int index = existingId.indexOf(search);
-        existingId.remove(index);
-    }
-
-    String findOutClassObject(Integer search) {
-        String type = "";
-        for (Integer element : tableForEpics.keySet()) {
-            if (element.equals(search)) {
-                type = "Эпик";
-                return type;
-            }
-            Epic obj = tableForEpics.get(element);
-            for (Integer key : obj.tableForSubtasks.keySet()) {
-                if (key.equals(search)) {
-                    type = "Подзадача";
-                    foundId = element;
-                    return type;
-                }
-            }
-        }
-        for (Integer element : tableForTasks.keySet()) {
-            if (element.equals(search)) {
-                type = "Задача";
-                return type;
-            }
+        if (checkIdSubtask(search)) {
+            type = 3;
         }
         return type;
     }
 
-    boolean isNoElements() {
-        return existingId.isEmpty();
+    public Epic getByIdEpic(int search) {
+        return storageEpics.get(search);
     }
 
-    void calculateStatusEpic(int idEpic) {
+    public Task getByIdTask(int search) {
+        return storageTasks.get(search);
+    }
+
+    public Subtask getByIdSubtask(int search) {
+        return storageSubtasks.get(search);
+    }
+
+    public boolean isNoEpics() {
+        return storageEpics.isEmpty();
+    }
+
+    public boolean isNoTask() {
+        return storageTasks.isEmpty();
+    }
+
+    public boolean isNoSubtask() {
+        return storageSubtasks.isEmpty();
+    }
+
+
+    public void calculateStatusEpic(int idEpic) {
+        int sum = 0;
         int counterNew = 0;
         int counterDone = 0;
-        int counterProgress = 0;
-        int size;
-        for (Integer element : tableForEpics.keySet()) {
-            if (element.equals(idEpic)) {
-                Epic obj = tableForEpics.get(element);
-                size = obj.tableForSubtasks.size();
-                for (Integer k : obj.getTableForSubtasks().keySet()) {
-                    Subtask sub = obj.getTableForSubtasks().get(k);
-                    if (sub.getCondition() == Status.NEW) {
-                        counterNew++;
-                    }
-                    if (sub.getCondition() == Status.DONE) {
-                        counterDone++;
-                    }
-                    if (sub.getCondition() == Status.IN_PROGRESS) {
-                        counterProgress++;
-                    }
+        Integer identifier;
+        for (Integer element : storageSubtasks.keySet()) {
+            Subtask temp = storageSubtasks.get(element);
+            identifier = temp.getIdenEpic();
+            if (identifier.equals(idEpic)) {
+                Status c = temp.getCondition();
+                sum++;
+                if (c == Status.NEW) {
+                    counterNew++;
                 }
-                if (size == counterNew) {
-                    obj.setCondition(Status.NEW);
-                } else if (size == counterDone) {
-                    obj.setCondition(Status.DONE);
-                } else {
-                    obj.setCondition(Status.IN_PROGRESS);
+                if (c == Status.DONE) {
+                    counterDone++;
                 }
-                if (counterNew == 0 && counterDone == 0 && counterProgress == 0) {
-                    obj.setCondition(Status.NEW);
-                }
+            }
+            Epic currentEpic = storageEpics.get(idEpic);
+            if (sum == counterNew) {
+                currentEpic.setCondition(Status.NEW);
+            } else if (sum == counterDone) {
+                currentEpic.setCondition(Status.DONE);
+            } else {
+                currentEpic.setCondition(Status.IN_PROGRESS);
             }
         }
     }
