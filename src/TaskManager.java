@@ -10,122 +10,145 @@ public class TaskManager {
     private final HashMap<Integer, Task> storageTasks = new HashMap<>();
     private final HashMap<Integer, Subtask> storageSubtasks = new HashMap<>();
 
-    public int getCounterId() {
+    public int makeNewId() {
+        counterId += 1;
         return counterId;
     }
 
-    public void setCounterId() {
-        counterId = counterId + 1;
+    public void createTask(Task inputTask) {
+        int id = inputTask.getId();
+        storageTasks.put(id, inputTask);
     }
 
-    public void createTask(Task inputTask) {
-        setCounterId();
-        int id = getCounterId();
-        storageTasks.put(id, inputTask);
+    public boolean updateTask(Task inputTask) {
+        int id = inputTask.getId();
+        if (storageTasks.containsKey(id)) {
+            storageTasks.put(id, inputTask);
+            return true;
+        }
+        return false;
     }
 
     public void createEpic(Epic inputEpic) {
-        setCounterId();
-        int id = getCounterId();
+        int id = inputEpic.getId();
         storageEpics.put(id, inputEpic);
     }
 
-    public void createSubtask(int idEpic, Subtask inputSubtask) {
-        setCounterId();
-        int id = getCounterId();
-        storageSubtasks.put(id, inputSubtask);
-        calculateStatusEpic(idEpic);
+    public boolean updateEpic(Epic inputEpic) {
+        int id = inputEpic.getId();
+        if (storageEpics.containsKey(id)) {
+            storageEpics.put(id, inputEpic);
+            return true;
+        }
+        return false;
     }
 
-    public void updateTask(int id, Task inputTask) {
-        storageTasks.put(id, inputTask);
+    public boolean createSubtask(Subtask inputSubtask) {
+        int idEpic = inputSubtask.getIdenEpic();
+        if (storageEpics.containsKey(idEpic)) {
+            int id = inputSubtask.getId();
+            Epic temp = storageEpics.get(idEpic);
+            ArrayList<Integer> list = temp.getListOfId();
+            list.add(id);
+            storageSubtasks.put(id, inputSubtask);
+            calculateStatusEpic(idEpic);
+            return true;
+        }
+        return false;
     }
 
-    public void updateEpic(int id, Epic inputEpic) {
-        storageEpics.put(id, inputEpic);
+    public boolean updateSubtask(Subtask inputSubtask) {
+        int id = inputSubtask.getId();
+        if (storageSubtasks.containsKey(id)) {
+            int idEpic = inputSubtask.getIdenEpic();
+            storageSubtasks.put(id, inputSubtask);
+            calculateStatusEpic(idEpic);
+            return true;
+        }
+        return false;
     }
 
-    public void updateSubtask(int id, Subtask inputSubtask, int idEpic) {
-        storageSubtasks.put(id, inputSubtask);
-        calculateStatusEpic(idEpic);
+    public int receiveIdEpic(int search) {
+        Subtask current = storageSubtasks.get(search);
+        return current.getIdenEpic();
     }
 
-    public int receiveIdenEpic(int search) {
-        Subtask currentEpic = storageSubtasks.get(search);
-        return currentEpic.getIdenEpic();
+    public ArrayList<Epic> getEpics() {
+        ArrayList<Epic> records = new ArrayList<>();
+        for (Integer element : storageEpics.keySet()) {
+            records.add(storageEpics.get(element));
+        }
+        return records;
     }
 
-    public HashMap<Integer, Epic> getEpics() {
-        return storageEpics;
+    public ArrayList<Task> getTasks() {
+        ArrayList<Task> records = new ArrayList<>();
+        for (Integer element : storageTasks.keySet()) {
+            records.add(storageTasks.get(element));
+        }
+        return records;
     }
 
-    public HashMap<Integer, Task> getTasks() {
-        return storageTasks;
-    }
-
-    public HashMap<Integer, Subtask> getSubtasks() {
-        return storageSubtasks;
-    }
-
-    public void removeAll() {
-        storageTasks.clear();
-        storageEpics.clear();
-        storageSubtasks.clear();
-    }
-
-    public boolean checkIdTask(int idTask) {
-        return storageTasks.containsKey(idTask);
-    }
-
-    public boolean checkIdSubtask(int idSubtask) {
-        return storageSubtasks.containsKey(idSubtask);
-    }
-
-    public boolean checkIdEpic(int idEpic) {
-        return storageEpics.containsKey(idEpic);
+    public ArrayList<Subtask> getSubtasks() {
+        ArrayList<Subtask> records = new ArrayList<>();
+        for (Integer element : storageSubtasks.keySet()) {
+            records.add(storageSubtasks.get(element));
+        }
+        return records;
     }
 
     public int removeByIdEpic(int search) {
-        storageEpics.remove(search);
-        return deleteSubtask(search);
-    }
-
-    public void removeByIdTask(int search) {
-        storageTasks.remove(search);
-    }
-
-    public void removeByIdSubtask(int search, int idEpic) {
-        storageSubtasks.remove(search);
-        calculateStatusEpic(idEpic);
-    }
-
-    // При удалении эпика метод удаляет все его подзадачи
-    public int deleteSubtask(int idEpic) {
-        Integer identifier;
-        ArrayList<Integer> del = new ArrayList<>();
-        for (Integer element : storageSubtasks.keySet()) {
-            Subtask temp = storageSubtasks.get(element);
-            identifier = temp.getIdenEpic();
-            if (identifier.equals(idEpic)) {
-                del.add(element);
+        if (storageEpics.containsKey(search)) {
+            storageEpics.remove(search);
+            Integer identifier;
+            ArrayList<Integer> del = new ArrayList<>();
+            for (Integer element : storageSubtasks.keySet()) {
+                Subtask temp = storageSubtasks.get(element);
+                identifier = temp.getIdenEpic();
+                if (identifier.equals(search)) {
+                    del.add(element);
+                }
             }
+            for (int i = 0; i < del.size(); i++) {
+                int r = del.get(i);
+                storageSubtasks.remove(r);
+            }
+            return del.size();
         }
-        for (int i = 0; i < del.size(); i++) {
-            int r = del.get(i);
-            storageSubtasks.remove(r);
+        return -1;
+    }
+
+    public boolean removeByIdTask(int search) {
+        if (storageTasks.containsKey(search)) {
+            storageTasks.remove(search);
+            return true;
         }
-        return del.size();
+        return false;
+    }
+
+    public boolean removeByIdSubtask(int search) {
+        if (storageSubtasks.containsKey(search)) {
+            Subtask current = storageSubtasks.get(search);
+            int idEpic = current.getIdenEpic();
+            Epic temp = storageEpics.get(idEpic);
+            ArrayList<Integer> list = temp.getListOfId();
+            list.remove(Integer.valueOf(search));
+            storageSubtasks.remove(search);
+            calculateStatusEpic(idEpic);
+            return true;
+        }
+        return false;
     }
 
     public int findOutClassObject(int search) {
         int type = 0;
-        if (checkIdEpic(search)) {
+        if (storageEpics.containsKey(search)) {
             type = 1;
         }
-        if (checkIdTask(search)) {
+        if (storageTasks.containsKey(search)) {
             type = 2;
         }
-        if (checkIdSubtask(search)) {
+        if (storageSubtasks.containsKey(search)) {
             type = 3;
         }
         return type;
@@ -143,20 +166,23 @@ public class TaskManager {
         return storageSubtasks.get(search);
     }
 
-    public boolean isNoEpics() {
-        return storageEpics.isEmpty();
+    public boolean emptyList() {
+        return storageEpics.isEmpty() && storageTasks.isEmpty() && storageSubtasks.isEmpty();
     }
 
-    public boolean isNoTask() {
-        return storageTasks.isEmpty();
+    public void removeEpics() {
+        storageEpics.clear();
     }
 
-    public boolean isNoSubtask() {
-        return storageSubtasks.isEmpty();
+    public void removeTasks() {
+        storageTasks.clear();
     }
 
+    public void removeSubtasks() {
+        storageSubtasks.clear();
+    }
 
-    public void calculateStatusEpic(int idEpic) {
+    private void calculateStatusEpic(int idEpic) {
         int sum = 0;
         int counterNew = 0;
         int counterDone = 0;

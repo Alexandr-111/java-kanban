@@ -1,16 +1,24 @@
 package tasks;
 
-public class Epic extends Task {
+import java.util.ArrayList;
 
-    public Epic(String name, String description, Status condition) {
-        super(name, description, condition);
+public class Epic extends Task {
+    private ArrayList<Integer> listOfId = new ArrayList<>();
+
+    public Epic(String name, String description, Status condition, int id) {
+        super(name, description, condition, id);
+    }
+
+    public ArrayList<Integer> getListOfId() {
+        return listOfId;
     }
 
     @Override
     public String toString() {
         return "ЭПИК. "
                 + "Название = '" + super.name + "', "
-                + "Описание ='" + super.description + "', "
-                + "Статус = " + super.condition + "\n";
+                + "Описание = '" + super.description + "', "
+                + "Статус = '" + super.condition + "', "
+                + "Id = '" + super.id + "'\n";
     }
 }

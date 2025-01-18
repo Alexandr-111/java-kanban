@@ -1,6 +1,6 @@
 import tasks.*;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Main {
@@ -23,7 +23,8 @@ public class Main {
                     System.out.println("Введите описание эпика");
                     description = scanner.nextLine();
                     condition = Status.NEW;
-                    Epic inputEpic = new Epic(name, description, condition);
+                    int id = manager.makeNewId();
+                    Epic inputEpic = new Epic(name, description, condition, id);
                     manager.createEpic(inputEpic);
                 } else if (command == 2) {
                     System.out.println("Введите название задачи");
@@ -34,30 +35,32 @@ public class Main {
                     System.out.println("Варианты:\n" + Status.NEW + "\n" + Status.IN_PROGRESS + "\n" + Status.DONE);
                     statusTask = scanner.nextLine();
                     condition = Status.valueOf(statusTask);
-                    Task inputTask = new Task(name, description, condition);
+                    int id = manager.makeNewId();
+                    Task inputTask = new Task(name, description, condition, id);
                     manager.createTask(inputTask);
                 } else if (command == 3) {
                     System.out.println("Введите id эпика");
                     int idEpic = scanner.nextInt();
                     scanner.nextLine();
-                    if (manager.checkIdEpic(idEpic)) {
-                        System.out.println("Введите название подзадачи");
-                        name = scanner.nextLine();
-                        System.out.println("Введите описание подзадачи");
-                        description = scanner.nextLine();
-                        System.out.println("Присвойте нужный статус");
-                        System.out.println("Возможные статусы:\n" + Status.NEW + "\n"
-                                + Status.IN_PROGRESS + "\n" + Status.DONE);
-                        statusTask = scanner.nextLine();
-                        condition = Status.valueOf(statusTask);
-                        Subtask inputSubtask = new Subtask(idEpic, name, description, condition);
-                        manager.createSubtask(idEpic, inputSubtask);
+                    System.out.println("Введите название подзадачи");
+                    name = scanner.nextLine();
+                    System.out.println("Введите описание подзадачи");
+                    description = scanner.nextLine();
+                    System.out.println("Присвойте нужный статус");
+                    System.out.println("Возможные статусы:\n" + Status.NEW + "\n"
+                            + Status.IN_PROGRESS + "\n" + Status.DONE);
+                    statusTask = scanner.nextLine();
+                    condition = Status.valueOf(statusTask);
+                    int id = manager.makeNewId();
+                    Subtask inputSubtask = new Subtask(idEpic, name, description, condition, id);
+                    boolean b = manager.createSubtask(inputSubtask);
+                    if (b) {
                         System.out.println("Подзадача успешно добавлена");
                     } else {
                         System.out.println("Не существует эпика с таким id");
                     }
                 } else if (command == 4) {
-                    if (manager.isNoSubtask() && manager.isNoTask() && manager.isNoEpics()) {
+                    if (manager.emptyList()) {
                         System.out.println("В списке нет ни одной задачи");
                     } else {
                         System.out.println("Список всех задач");
@@ -66,10 +69,12 @@ public class Main {
                         printS(manager.getSubtasks());
                     }
                 } else if (command == 5) {
-                    if (manager.isNoSubtask() && manager.isNoTask() && manager.isNoEpics()) {
+                    if (manager.emptyList()) {
                         System.out.println("В списке нет ни одной задачи");
                     } else {
-                        manager.removeAll();
+                        manager.removeEpics();
+                        manager.removeTasks();
+                        manager.removeSubtasks();
                         System.out.println("Все задачи удалены");
                     }
                 } else if (command == 6) {
@@ -102,9 +107,11 @@ public class Main {
                         System.out.println("Введите описание эпика");
                         description = scanner.nextLine();
                         condition = Status.NEW;
-                        Epic inputEpic = new Epic(name, description, condition);
-                        manager.updateEpic(search, inputEpic);
-                        System.out.println("Задача обновлена");
+                        Epic inputEpic = new Epic(name, description, condition, search);
+                        boolean b = manager.updateEpic(inputEpic);
+                        if (b) {
+                            System.out.println("Эпик успешно обновлен");
+                        }
                     } else if (type == 2) {
                         System.out.println("Введите название задачи");
                         name = scanner.nextLine();
@@ -115,11 +122,13 @@ public class Main {
                                 + Status.IN_PROGRESS + "\n" + Status.DONE);
                         statusTask = scanner.nextLine();
                         condition = Status.valueOf(statusTask);
-                        Task inputTask = new Task(name, description, condition);
-                        manager.updateTask(search, inputTask);
-                        System.out.println("Задача обновлена");
+                        Task inputTask = new Task(name, description, condition, search);
+                        boolean b = manager.updateTask(inputTask);
+                        if (b) {
+                            System.out.println("Задача успешно обновлена");
+                        }
                     } else if (type == 3) {
-                        int idenEpic = manager.receiveIdenEpic(search);
+                        int idEpic = manager.receiveIdEpic(search);
                         System.out.println("Введите название подзадачи");
                         name = scanner.nextLine();
                         System.out.println("Введите описание подзадачи");
@@ -129,9 +138,11 @@ public class Main {
                                 + Status.IN_PROGRESS + "\n" + Status.DONE);
                         statusTask = scanner.nextLine();
                         condition = Status.valueOf(statusTask);
-                        Subtask inputSubtask = new Subtask(idenEpic, name, description, condition);
-                        manager.updateSubtask(search, inputSubtask, idenEpic);
-                        System.out.println("Задача обновлена");
+                        Subtask inputSubtask = new Subtask(idEpic, name, description, condition, search);
+                        boolean b = manager.updateSubtask(inputSubtask);
+                        if (b) {
+                            System.out.println("Подзадача успешно обновлена");
+                        }
                     } else {
                         System.out.println("Задач с таким идентификатором не существует");
                     }
@@ -142,15 +153,22 @@ public class Main {
                     scanner.nextLine();
                     type = manager.findOutClassObject(search);
                     if (type == 1) {
-                      int b =  manager.removeByIdEpic(search);
-                        System.out.println("Удален эпик и " + b + " подзадачи");
+                        int y = manager.removeByIdEpic(search);
+                        if (y == -1) {
+                            System.out.println("Не удалось провести удаление");
+                        } else {
+                            System.out.println("Удален эпик и " + y + " подзадачи");
+                        }
                     } else if (type == 2) {
-                        manager.removeByIdTask(search);
-                        System.out.println("Задача удалена");
+                        boolean b = manager.removeByIdTask(search);
+                        if (b) {
+                            System.out.println("Задача успешно удалена");
+                        }
                     } else if (type == 3) {
-                        int idenEpic = manager.receiveIdenEpic(search);
-                        manager.removeByIdSubtask(search, idenEpic);
-                        System.out.println("Подзадача удалена");
+                        boolean b = manager.removeByIdSubtask(search);
+                        if (b) {
+                            System.out.println("Подзадача успешно удалена");
+                        }
                     } else {
                         System.out.println("Задачи с таким идентификатором не существует");
                     }
@@ -168,30 +186,30 @@ public class Main {
     }
 
     static void print() {
-        System.out.println("---------------------------------------");
-        System.out.println("Поехали!");
-        System.out.println("Выберите опцию");
-        System.out.println("1 - Создать новый эпик");
-        System.out.println("2 - Создать новую задачу");
-        System.out.println("3 - Добавить подзадачу в эпик");
-        System.out.println("4 - Получить список всех задач");
-        System.out.println("5 - Удалить все задачи");
-        System.out.println("6 - Получить задачу по идентификатору");
-        System.out.println("7 - Обновить задачу");
-        System.out.println("8 - Удалить задачу по идентификатору");
-        System.out.println("0 - Выйти из приложения");
-        System.out.println("---------------------------------------");
+        System.out.println("-----------------------------------------");
+        System.out.println("\tПоехали!");
+        System.out.println("\tВыберите опцию");
+        System.out.println("\t1 - Создать новый эпик");
+        System.out.println("\t2 - Создать новую задачу");
+        System.out.println("\t3 - Добавить подзадачу в эпик");
+        System.out.println("\t4 - Получить список всех задач");
+        System.out.println("\t5 - Удалить все задачи");
+        System.out.println("\t6 - Получить задачу по идентификатору");
+        System.out.println("\t7 - Обновить задачу");
+        System.out.println("\t8 - Удалить задачу по идентификатору");
+        System.out.println("\t0 - Выйти из приложения");
+        System.out.println("-----------------------------------------");
     }
 
-    static void printE(HashMap<Integer, Epic> storageEpics) {
-        System.out.println(storageEpics);
+    static void printE(ArrayList<Epic> records) {
+        System.out.println(records);
     }
 
-    static void printT(HashMap<Integer, Task> storageTasks) {
-        System.out.println(storageTasks);
+    static void printT(ArrayList<Task> records) {
+        System.out.println(records);
     }
 
-    static void printS(HashMap<Integer, Subtask> storageSubtasks) {
-        System.out.println(storageSubtasks);
+    static void printS(ArrayList<Subtask> records) {
+        System.out.println(records);
     }
 }
