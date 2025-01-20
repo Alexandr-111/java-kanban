@@ -10,13 +10,14 @@ public class TaskManager {
     private final HashMap<Integer, Task> storageTasks = new HashMap<>();
     private final HashMap<Integer, Subtask> storageSubtasks = new HashMap<>();
 
-    public int makeNewId() {
+    private int makeNewId() {
         counterId += 1;
         return counterId;
     }
 
     public void createTask(Task inputTask) {
-        int id = inputTask.getId();
+        int id = makeNewId();
+        inputTask.setId(id);
         storageTasks.put(id, inputTask);
     }
 
@@ -30,7 +31,8 @@ public class TaskManager {
     }
 
     public void createEpic(Epic inputEpic) {
-        int id = inputEpic.getId();
+        int id = makeNewId();
+        inputEpic.setId(id);
         storageEpics.put(id, inputEpic);
     }
 
@@ -46,10 +48,10 @@ public class TaskManager {
     public boolean createSubtask(Subtask inputSubtask) {
         int idEpic = inputSubtask.getIdenEpic();
         if (storageEpics.containsKey(idEpic)) {
-            int id = inputSubtask.getId();
+            int id = makeNewId();
+            inputSubtask.setId(id);
             Epic temp = storageEpics.get(idEpic);
-            ArrayList<Integer> list = temp.getListOfId();
-            list.add(id);
+            temp.addIdSub(id);
             storageSubtasks.put(id, inputSubtask);
             calculateStatusEpic(idEpic);
             return true;
@@ -74,45 +76,25 @@ public class TaskManager {
     }
 
     public ArrayList<Epic> getEpics() {
-        ArrayList<Epic> records = new ArrayList<>();
-        for (Integer element : storageEpics.keySet()) {
-            records.add(storageEpics.get(element));
-        }
-        return records;
+        return new ArrayList<>(storageEpics.values());
     }
 
     public ArrayList<Task> getTasks() {
-        ArrayList<Task> records = new ArrayList<>();
-        for (Integer element : storageTasks.keySet()) {
-            records.add(storageTasks.get(element));
-        }
-        return records;
+        return new ArrayList<>(storageTasks.values());
     }
 
     public ArrayList<Subtask> getSubtasks() {
-        ArrayList<Subtask> records = new ArrayList<>();
-        for (Integer element : storageSubtasks.keySet()) {
-            records.add(storageSubtasks.get(element));
-        }
-        return records;
+        return new ArrayList<>(storageSubtasks.values());
     }
 
     public int removeByIdEpic(int search) {
         if (storageEpics.containsKey(search)) {
-            storageEpics.remove(search);
-            Integer identifier;
-            ArrayList<Integer> del = new ArrayList<>();
-            for (Integer element : storageSubtasks.keySet()) {
-                Subtask temp = storageSubtasks.get(element);
-                identifier = temp.getIdenEpic();
-                if (identifier.equals(search)) {
-                    del.add(element);
-                }
-            }
-            for (int i = 0; i < del.size(); i++) {
-                int r = del.get(i);
+            Epic temp = storageEpics.get(search);
+            ArrayList<Integer> del = temp.getListOfId();
+            for (Integer r : del) {
                 storageSubtasks.remove(r);
             }
+            storageEpics.remove(search);
             return del.size();
         }
         return -1;
@@ -131,8 +113,7 @@ public class TaskManager {
             Subtask current = storageSubtasks.get(search);
             int idEpic = current.getIdenEpic();
             Epic temp = storageEpics.get(idEpic);
-            ArrayList<Integer> list = temp.getListOfId();
-            list.remove(Integer.valueOf(search));
+            temp.deleteIdSub(search);
             storageSubtasks.remove(search);
             calculateStatusEpic(idEpic);
             return true;
@@ -172,14 +153,11 @@ public class TaskManager {
 
     public void removeEpics() {
         storageEpics.clear();
+        storageSubtasks.clear();
     }
 
     public void removeTasks() {
         storageTasks.clear();
-    }
-
-    public void removeSubtasks() {
-        storageSubtasks.clear();
     }
 
     private void calculateStatusEpic(int idEpic) {

@@ -23,8 +23,7 @@ public class Main {
                     System.out.println("Введите описание эпика");
                     description = scanner.nextLine();
                     condition = Status.NEW;
-                    int id = manager.makeNewId();
-                    Epic inputEpic = new Epic(name, description, condition, id);
+                    Epic inputEpic = new Epic(name, description, condition);
                     manager.createEpic(inputEpic);
                 } else if (command == 2) {
                     System.out.println("Введите название задачи");
@@ -35,8 +34,7 @@ public class Main {
                     System.out.println("Варианты:\n" + Status.NEW + "\n" + Status.IN_PROGRESS + "\n" + Status.DONE);
                     statusTask = scanner.nextLine();
                     condition = Status.valueOf(statusTask);
-                    int id = manager.makeNewId();
-                    Task inputTask = new Task(name, description, condition, id);
+                    Task inputTask = new Task(name, description, condition);
                     manager.createTask(inputTask);
                 } else if (command == 3) {
                     System.out.println("Введите id эпика");
@@ -51,8 +49,7 @@ public class Main {
                             + Status.IN_PROGRESS + "\n" + Status.DONE);
                     statusTask = scanner.nextLine();
                     condition = Status.valueOf(statusTask);
-                    int id = manager.makeNewId();
-                    Subtask inputSubtask = new Subtask(idEpic, name, description, condition, id);
+                    Subtask inputSubtask = new Subtask(idEpic, name, description, condition);
                     boolean b = manager.createSubtask(inputSubtask);
                     if (b) {
                         System.out.println("Подзадача успешно добавлена");
@@ -74,7 +71,6 @@ public class Main {
                     } else {
                         manager.removeEpics();
                         manager.removeTasks();
-                        manager.removeSubtasks();
                         System.out.println("Все задачи удалены");
                     }
                 } else if (command == 6) {
