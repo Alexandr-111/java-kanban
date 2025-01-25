@@ -21,8 +21,7 @@ public class Subtask extends Task {
 
     @Override
     public String toString() {
-        return "ПОДЗАДАЧА. "
-                + "Id эпика = '" + this.idenEpic + "', "
+        return "Id эпика = '" + this.idenEpic + "', "
                 + "Название = '" + super.name + "', "
                 + "Описание ='" + super.description + "', "
                 + "Статус = '" + super.condition + "', "

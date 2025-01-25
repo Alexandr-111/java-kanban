@@ -11,7 +11,6 @@ public class Task {
         this.name = name;
         this.description = description;
         this.condition = condition;
-
     }
 
     // Конструктор вызывается при обновлении задач, когда id уже известен
@@ -20,6 +19,14 @@ public class Task {
         this.description = description;
         this.condition = condition;
         this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getDescription() {
+        return description;
     }
 
     public int getId() {
@@ -40,8 +47,7 @@ public class Task {
 
     @Override
     public String toString() {
-        return "ЗАДАЧА. " +
-                "Название = '" + name + "', "
+        return "Название = '" + name + "', "
                 + "Описание = '" + description + "', "
                 + "Статус = '" + condition + "', "
                 + "Id = '" + this.id + "'\n";

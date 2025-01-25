@@ -3,7 +3,7 @@ package tasks;
 import java.util.ArrayList;
 
 public class Epic extends Task {
-    private ArrayList<Integer> listOfId = new ArrayList<>();
+    private final ArrayList<Integer> listOfId = new ArrayList<>();
 
     // Конструктор вызывается при создании задач
     public Epic(String name, String description, Status condition) {
@@ -25,14 +25,5 @@ public class Epic extends Task {
 
     public void deleteIdSub(int idSub) {
         listOfId.remove(Integer.valueOf(idSub));
-    }
-
-    @Override
-    public String toString() {
-        return "ЭПИК. "
-                + "Название = '" + super.name + "', "
-                + "Описание = '" + super.description + "', "
-                + "Статус = '" + super.condition + "', "
-                + "Id = '" + super.id + "'\n";
     }
 }

@@ -1,92 +1,150 @@
+package managers;
+
 import tasks.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Objects;
 
 
-public class TaskManager {
+public class InMemoryTaskManager implements TaskManager {
+
     private int counterId = 0;
     private final HashMap<Integer, Epic> storageEpics = new HashMap<>();
     private final HashMap<Integer, Task> storageTasks = new HashMap<>();
     private final HashMap<Integer, Subtask> storageSubtasks = new HashMap<>();
+    private final HistoryManager managerH = Managers.getDefaultHistory();
+
+    public HashMap<Integer, Epic> getStorageEpics() {
+        return storageEpics;
+    }
+
+    public HashMap<Integer, Task> getStorageTasks() {
+        return storageTasks;
+    }
+
+    public HashMap<Integer, Subtask> getStorageSubtasks() {
+        return storageSubtasks;
+    }
+
+    public HistoryManager getManagerH() {
+        return managerH;
+    }
+
+    public int getCounterId() {
+        return counterId;
+    }
 
     private int makeNewId() {
         counterId += 1;
         return counterId;
     }
 
-    public void createTask(Task inputTask) {
-        int id = makeNewId();
-        inputTask.setId(id);
-        storageTasks.put(id, inputTask);
-    }
-
-    public boolean updateTask(Task inputTask) {
-        int id = inputTask.getId();
-        if (storageTasks.containsKey(id)) {
+    @Override
+    public boolean createTask(Task inputTask) {
+        if (!Objects.isNull(inputTask)) {
+            int id = makeNewId();
+            inputTask.setId(id);
             storageTasks.put(id, inputTask);
             return true;
         }
         return false;
     }
 
-    public void createEpic(Epic inputEpic) {
-        int id = makeNewId();
-        inputEpic.setId(id);
-        storageEpics.put(id, inputEpic);
+    @Override
+    public boolean updateTask(Task inputTask) {
+        if (!Objects.isNull(inputTask)) {
+            int id = inputTask.getId();
+            if (storageTasks.containsKey(id)) {
+                storageTasks.put(id, inputTask);
+            }
+            return true;
+        }
+        return false;
     }
 
-    public boolean updateEpic(Epic inputEpic) {
-        int id = inputEpic.getId();
-        if (storageEpics.containsKey(id)) {
+    @Override
+    public boolean createEpic(Epic inputEpic) {
+        if (!Objects.isNull(inputEpic)) {
+            int id = makeNewId();
+            inputEpic.setId(id);
             storageEpics.put(id, inputEpic);
             return true;
         }
         return false;
     }
 
+    @Override
+    public boolean updateEpic(Epic inputEpic) {
+        if (!Objects.isNull(inputEpic)) {
+            int id = inputEpic.getId();
+            if (storageEpics.containsKey(id)) {
+                ArrayList<Integer> temp = inputEpic.getListOfId();
+                if (!temp.isEmpty()) {
+                    for (Integer element : temp) {
+                        storageSubtasks.remove(element);
+                    }
+                }
+                storageEpics.put(id, inputEpic);
+            }
+            return true;
+        }
+        return false;
+    }
+
+    @Override
     public boolean createSubtask(Subtask inputSubtask) {
-        int idEpic = inputSubtask.getIdenEpic();
-        if (storageEpics.containsKey(idEpic)) {
-            int id = makeNewId();
-            inputSubtask.setId(id);
-            Epic temp = storageEpics.get(idEpic);
-            temp.addIdSub(id);
-            storageSubtasks.put(id, inputSubtask);
-            calculateStatusEpic(idEpic);
-            return true;
-        }
-        return false;
-    }
-
-    public boolean updateSubtask(Subtask inputSubtask) {
-        int id = inputSubtask.getId();
-        if (storageSubtasks.containsKey(id)) {
+        if (!Objects.isNull(inputSubtask)) {
             int idEpic = inputSubtask.getIdenEpic();
-            storageSubtasks.put(id, inputSubtask);
-            calculateStatusEpic(idEpic);
+            if (storageEpics.containsKey(idEpic)) {
+                int id = makeNewId();
+                inputSubtask.setId(id);
+                Epic temp = storageEpics.get(idEpic);
+                temp.addIdSub(id);
+                storageSubtasks.put(id, inputSubtask);
+                calculateStatusEpic(idEpic);
+            }
             return true;
         }
         return false;
     }
 
+    @Override
+    public boolean updateSubtask(Subtask inputSubtask) {
+        if (!Objects.isNull(inputSubtask)) {
+            int id = inputSubtask.getId();
+            if (storageSubtasks.containsKey(id)) {
+                int idEpic = inputSubtask.getIdenEpic();
+                storageSubtasks.put(id, inputSubtask);
+                calculateStatusEpic(idEpic);
+            }
+            return true;
+        }
+        return false;
+    }
+
+    @Override
     public int receiveIdEpic(int search) {
         Subtask current = storageSubtasks.get(search);
         return current.getIdenEpic();
     }
 
+    @Override
     public ArrayList<Epic> getEpics() {
         return new ArrayList<>(storageEpics.values());
     }
 
+    @Override
     public ArrayList<Task> getTasks() {
         return new ArrayList<>(storageTasks.values());
     }
 
+    @Override
     public ArrayList<Subtask> getSubtasks() {
         return new ArrayList<>(storageSubtasks.values());
     }
 
+    @Override
     public int removeByIdEpic(int search) {
         if (storageEpics.containsKey(search)) {
             Epic temp = storageEpics.get(search);
@@ -100,6 +158,7 @@ public class TaskManager {
         return -1;
     }
 
+    @Override
     public boolean removeByIdTask(int search) {
         if (storageTasks.containsKey(search)) {
             storageTasks.remove(search);
@@ -108,6 +167,7 @@ public class TaskManager {
         return false;
     }
 
+    @Override
     public boolean removeByIdSubtask(int search) {
         if (storageSubtasks.containsKey(search)) {
             Subtask current = storageSubtasks.get(search);
@@ -121,6 +181,7 @@ public class TaskManager {
         return false;
     }
 
+    @Override
     public int findOutClassObject(int search) {
         int type = 0;
         if (storageEpics.containsKey(search)) {
@@ -135,29 +196,48 @@ public class TaskManager {
         return type;
     }
 
+    @Override
     public Epic getByIdEpic(int search) {
+        managerH.add(takeSnapshot(search));
         return storageEpics.get(search);
     }
 
+    @Override
     public Task getByIdTask(int search) {
+        managerH.add(takeSnapshot(search));
         return storageTasks.get(search);
     }
 
+    @Override
     public Subtask getByIdSubtask(int search) {
+        managerH.add(takeSnapshot(search));
         return storageSubtasks.get(search);
     }
 
+    @Override
     public boolean emptyList() {
         return storageEpics.isEmpty() && storageTasks.isEmpty() && storageSubtasks.isEmpty();
     }
 
+    @Override
     public void removeEpics() {
+        removeSubtasks();
         storageEpics.clear();
-        storageSubtasks.clear();
     }
 
+    @Override
     public void removeTasks() {
         storageTasks.clear();
+    }
+
+    @Override
+    public void removeSubtasks() {
+        storageSubtasks.clear();
+        for (Integer element : storageEpics.keySet()) {
+            Epic temp = storageEpics.get(element);
+            temp.setCondition(Status.NEW);
+            temp.getListOfId().clear();
+        }
     }
 
     private void calculateStatusEpic(int idEpic) {
@@ -186,6 +266,25 @@ public class TaskManager {
             } else {
                 currentEpic.setCondition(Status.IN_PROGRESS);
             }
+        }
+    }
+
+    //  Метод создает поверхностную копию объекта, чтобы зафиксировать
+    //  его состояние на тот момент, когда пользователь просматривает задачу
+    private Task takeSnapshot(int search) {
+        int a = findOutClassObject(search);
+        if (a == 1) {
+            Epic temp = storageEpics.get(search);
+            return new Epic(temp.getName(), temp.getDescription(), temp.getCondition(), temp.getId());
+        } else if (a == 2) {
+            Task temp = storageTasks.get(search);
+            return new Task(temp.getName(), temp.getDescription(), temp.getCondition(), temp.getId());
+        } else if (a == 3) {
+            Subtask temp = storageSubtasks.get(search);
+            return new Subtask(temp.getIdenEpic(), temp.getName(), temp.getDescription(),
+                    temp.getCondition(), temp.getId());
+        } else {
+            return null;
         }
     }
 }
