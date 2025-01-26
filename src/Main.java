@@ -15,7 +15,7 @@ public class Main {
             manager.createSubtask(new Subtask(i, "Подзадача", "Описание_" + i, Status.DONE));
             manager.createSubtask(new Subtask(i, "Подзадача", "Описание_" + (i + 2), Status.NEW));
         }
-        for (int i = 1; i < 4; i++) {
+        for (int i = 1; i < 3; i++) {
             manager.createTask(new Task("Задача_" + i, "Описание_" + i, Status.NEW));
         }
         System.out.println("Список всех задач:");
@@ -26,15 +26,14 @@ public class Main {
         System.out.println(manager.getByIdEpic(1));
         System.out.println(manager.getByIdEpic(3));
         System.out.println(manager.getByIdTask(10));
-        System.out.println(manager.getByIdTask(12));
         System.out.println(manager.getByIdSubtask(7));
         System.out.println(manager.getByIdSubtask(9));
 
         // Проверяем, что в истории просмотров остаются оба состояния задачи,
         // предыдущая версия и версия после обновления
-
         manager.updateTask(new Task("Новая задача", "Новое описание", Status.IN_PROGRESS, 10));
         System.out.println(manager.getByIdTask(10));
+
         System.out.println("История просмотров:");
         System.out.println(manager.getManagerH().getHistory());
     }

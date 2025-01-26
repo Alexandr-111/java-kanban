@@ -4,29 +4,56 @@ import tasks.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
-
 
 public class InMemoryTaskManager implements TaskManager {
 
     private int counterId = 0;
-    private final HashMap<Integer, Epic> storageEpics = new HashMap<>();
-    private final HashMap<Integer, Task> storageTasks = new HashMap<>();
-    private final HashMap<Integer, Subtask> storageSubtasks = new HashMap<>();
+    private final Map<Integer, Epic> storageEpics = new HashMap<>();
+    private final Map<Integer, Task> storageTasks = new HashMap<>();
+    private final Map<Integer, Subtask> storageSubtasks = new HashMap<>();
     private final HistoryManager managerH = Managers.getDefaultHistory();
 
-    public HashMap<Integer, Epic> getStorageEpics() {
+    //  Метод используется только в тестовых классах, для тестирования работы методов с
+    //  хэш-таблицей storageEpics, т.к она объявлена с модификатором private
+    public Map<Integer, Epic> getStorageEpics() {
         return storageEpics;
     }
 
-    public HashMap<Integer, Task> getStorageTasks() {
+    // Используется для работы с классом Main
+    @Override
+    public ArrayList<Epic> getEpics() {
+        return new ArrayList<>(storageEpics.values());
+    }
+
+    //  Метод используется только в тестовых классах, для тестирования работы методов с
+    //  хэш-таблицей storageTasks, т.к она объявлена с модификатором private
+    public Map<Integer, Task> getStorageTasks() {
         return storageTasks;
     }
 
-    public HashMap<Integer, Subtask> getStorageSubtasks() {
+    // Используется для работы с классом Main
+    @Override
+    public ArrayList<Task> getTasks() {
+        return new ArrayList<>(storageTasks.values());
+    }
+
+    //  Метод используется только в тестовых классах, для тестирования работы методов с
+    //  хэш-таблицей storageSubtasks, т.к она объявлена с модификатором private
+    public Map<Integer, Subtask> getStorageSubtasks() {
         return storageSubtasks;
     }
 
+    // Используется для работы с классом Main
+    @Override
+    public ArrayList<Subtask> getSubtasks() {
+        return new ArrayList<>(storageSubtasks.values());
+    }
+
+    //  Используется для доступа из других классов к полям и методам
+    //  экземпляра класса InMemoryHistoryManager, т.к. managerH объявлен с модификатором private
+    //  Список истории просмотров возвращает его метод LinkedList<Task> getHistory()
     public HistoryManager getManagerH() {
         return managerH;
     }
@@ -79,12 +106,6 @@ public class InMemoryTaskManager implements TaskManager {
         if (!Objects.isNull(inputEpic)) {
             int id = inputEpic.getId();
             if (storageEpics.containsKey(id)) {
-                ArrayList<Integer> temp = inputEpic.getListOfId();
-                if (!temp.isEmpty()) {
-                    for (Integer element : temp) {
-                        storageSubtasks.remove(element);
-                    }
-                }
                 storageEpics.put(id, inputEpic);
             }
             return true;
@@ -127,21 +148,6 @@ public class InMemoryTaskManager implements TaskManager {
     public int receiveIdEpic(int search) {
         Subtask current = storageSubtasks.get(search);
         return current.getIdenEpic();
-    }
-
-    @Override
-    public ArrayList<Epic> getEpics() {
-        return new ArrayList<>(storageEpics.values());
-    }
-
-    @Override
-    public ArrayList<Task> getTasks() {
-        return new ArrayList<>(storageTasks.values());
-    }
-
-    @Override
-    public ArrayList<Subtask> getSubtasks() {
-        return new ArrayList<>(storageSubtasks.values());
     }
 
     @Override
@@ -221,7 +227,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void removeEpics() {
-        removeSubtasks();
+        storageSubtasks.clear();
         storageEpics.clear();
     }
 
@@ -269,7 +275,7 @@ public class InMemoryTaskManager implements TaskManager {
         }
     }
 
-    //  Метод создает поверхностную копию объекта, чтобы зафиксировать
+    //  Метод создает копию объекта, чтобы зафиксировать
     //  его состояние на тот момент, когда пользователь просматривает задачу
     private Task takeSnapshot(int search) {
         int a = findOutClassObject(search);
