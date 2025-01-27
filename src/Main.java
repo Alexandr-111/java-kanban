@@ -35,7 +35,7 @@ public class Main {
         System.out.println(manager.getByIdTask(10));
 
         System.out.println("История просмотров:");
-        System.out.println(manager.getManagerH().getHistory());
+        System.out.println(manager.getBrowsingHistory());
     }
 
     static void printE(ArrayList<Epic> records) {

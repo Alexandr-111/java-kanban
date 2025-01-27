@@ -16,6 +16,6 @@ class InMemoryHistoryManagerTest {
             manager.createTask(new Task("название" + i, "описание" + i, Status.NEW));
             Task task = manager.getByIdTask(i);
         }
-        assertEquals(10, manager.getManagerH().getHistory().size());
+        assertEquals(10, manager.getBrowsingHistory().size());
     }
 }

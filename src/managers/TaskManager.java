@@ -3,6 +3,7 @@ package managers;
 import tasks.*;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 
 public interface TaskManager {
 
@@ -19,6 +20,8 @@ public interface TaskManager {
     boolean updateSubtask(Subtask inputSubtask);
 
     int receiveIdEpic(int search);
+
+    LinkedList<Task> getBrowsingHistory();
 
     ArrayList<Epic> getEpics();
 
@@ -39,8 +42,6 @@ public interface TaskManager {
     Task getByIdTask(int search);
 
     Subtask getByIdSubtask(int search);
-
-    HistoryManager getManagerH();
 
     boolean emptyList();
 

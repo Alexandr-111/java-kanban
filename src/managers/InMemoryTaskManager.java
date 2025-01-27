@@ -2,10 +2,7 @@ package managers;
 
 import tasks.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 public class InMemoryTaskManager implements TaskManager {
 
@@ -15,62 +12,33 @@ public class InMemoryTaskManager implements TaskManager {
     private final Map<Integer, Subtask> storageSubtasks = new HashMap<>();
     private final HistoryManager managerH = Managers.getDefaultHistory();
 
-    //  Метод используется только в тестовых классах, для тестирования работы методов с
-    //  хэш-таблицей storageEpics, т.к она объявлена с модификатором private
-    public Map<Integer, Epic> getStorageEpics() {
-        return storageEpics;
-    }
-
-    // Используется для работы с классом Main
     @Override
     public ArrayList<Epic> getEpics() {
         return new ArrayList<>(storageEpics.values());
     }
 
-    //  Метод используется только в тестовых классах, для тестирования работы методов с
-    //  хэш-таблицей storageTasks, т.к она объявлена с модификатором private
-    public Map<Integer, Task> getStorageTasks() {
-        return storageTasks;
-    }
-
-    // Используется для работы с классом Main
     @Override
     public ArrayList<Task> getTasks() {
         return new ArrayList<>(storageTasks.values());
     }
 
-    //  Метод используется только в тестовых классах, для тестирования работы методов с
-    //  хэш-таблицей storageSubtasks, т.к она объявлена с модификатором private
-    public Map<Integer, Subtask> getStorageSubtasks() {
-        return storageSubtasks;
-    }
-
-    // Используется для работы с классом Main
     @Override
     public ArrayList<Subtask> getSubtasks() {
         return new ArrayList<>(storageSubtasks.values());
     }
 
-    //  Используется для доступа из других классов к полям и методам
-    //  экземпляра класса InMemoryHistoryManager, т.к. managerH объявлен с модификатором private
-    //  Список истории просмотров возвращает его метод LinkedList<Task> getHistory()
-    public HistoryManager getManagerH() {
-        return managerH;
+    public LinkedList<Task> getBrowsingHistory() {
+        return managerH.getHistory();
     }
 
     public int getCounterId() {
         return counterId;
     }
 
-    private int makeNewId() {
-        counterId += 1;
-        return counterId;
-    }
-
     @Override
     public boolean createTask(Task inputTask) {
         if (!Objects.isNull(inputTask)) {
-            int id = makeNewId();
+            int id = ++counterId;
             inputTask.setId(id);
             storageTasks.put(id, inputTask);
             return true;
@@ -93,7 +61,7 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public boolean createEpic(Epic inputEpic) {
         if (!Objects.isNull(inputEpic)) {
-            int id = makeNewId();
+            int id = ++counterId;
             inputEpic.setId(id);
             storageEpics.put(id, inputEpic);
             return true;
@@ -118,7 +86,7 @@ public class InMemoryTaskManager implements TaskManager {
         if (!Objects.isNull(inputSubtask)) {
             int idEpic = inputSubtask.getIdenEpic();
             if (storageEpics.containsKey(idEpic)) {
-                int id = makeNewId();
+                int id = ++counterId;
                 inputSubtask.setId(id);
                 Epic temp = storageEpics.get(idEpic);
                 temp.addIdSub(id);

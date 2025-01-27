@@ -5,6 +5,8 @@ import managers.InMemoryTaskManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class InMemoryTaskManagerTest {
@@ -16,7 +18,7 @@ class InMemoryTaskManagerTest {
     }
 
     @Test
-    void makeNewIdCheck() {
+    void makeIdCheck() {
         manager.createTask(new Task("название_5", "описание_5", Status.NEW));
         assertEquals(1, manager.getCounterId());
         manager.createTask(new Task("название_6", "описание_6", Status.DONE));
@@ -27,7 +29,8 @@ class InMemoryTaskManagerTest {
     void createTaskCheck() {
         Task inputTask = new Task("название_2", "описание_2", Status.NEW);
         assertTrue(manager.createTask(inputTask));
-        assertEquals(1, manager.getStorageTasks().size());
+        ArrayList<Task> t = manager.getTasks();
+        assertEquals(1, t.size());
     }
 
     @Test
@@ -42,7 +45,8 @@ class InMemoryTaskManagerTest {
     void createEpicCheck() {
         Epic inputEpic = new Epic("название_1", "описание_1", Status.NEW);
         assertTrue(manager.createEpic(inputEpic));
-        assertEquals(1, manager.getStorageEpics().size());
+        ArrayList<Epic> e = manager.getEpics();
+        assertEquals(1, e.size());
     }
 
     @Test
@@ -59,8 +63,8 @@ class InMemoryTaskManagerTest {
         manager.createEpic(inputEpic);
         Subtask inputSubtask = new Subtask(1, "название_3", "описание_3", Status.NEW);
         assertTrue(manager.createSubtask(inputSubtask));
-        assertEquals(1, manager.getStorageSubtasks().size());
-
+        ArrayList<Subtask> s = manager.getSubtasks();
+        assertEquals(1, s.size());
     }
 
     @Test
@@ -74,7 +78,7 @@ class InMemoryTaskManagerTest {
         assertTrue(manager.updateSubtask(updateInputSubtask));
     }
 
-    @Test
+  @Test
     void removeByIdEpicCheck() {
         Epic inputEpic = new Epic("название_1", "описание_1", Status.NEW);
         manager.createEpic(inputEpic);
@@ -83,15 +87,15 @@ class InMemoryTaskManagerTest {
         Subtask inputSubtask2 = new Subtask(1, "название_4", "описание_4", Status.IN_PROGRESS);
         manager.createSubtask(inputSubtask2);
         assertEquals(2, manager.removeByIdEpic(1));
-        assertTrue(manager.getStorageEpics().isEmpty());
-        assertTrue(manager.getStorageSubtasks().isEmpty());
+        assertTrue(manager.getEpics().isEmpty());
+        assertTrue( manager.getSubtasks().isEmpty());
     }
 
     @Test
     void removeByIdTaskCheck() {
         Task inputTask = new Task("название_2", "описание_2", Status.NEW);
         manager.removeByIdTask(1);
-        assertTrue(manager.getStorageTasks().isEmpty());
+        assertTrue(manager.getTasks().isEmpty());
     }
 
     @Test
@@ -101,7 +105,7 @@ class InMemoryTaskManagerTest {
         Subtask inputSubtask = new Subtask(1, "название_4", "описание_4", Status.IN_PROGRESS);
         manager.createSubtask(inputSubtask);
         manager.removeByIdSubtask(2);
-        assertTrue(manager.getStorageSubtasks().isEmpty());
+        assertTrue(manager.getSubtasks().isEmpty());
     }
 
     @Test
@@ -155,7 +159,7 @@ class InMemoryTaskManagerTest {
         Subtask inputSubtask = new Subtask(1, "название_3", "описание_3", Status.DONE);
         manager.createSubtask(inputSubtask);
         manager.removeEpics();
-        assertTrue(manager.getStorageEpics().isEmpty() && manager.getStorageSubtasks().isEmpty());
+        assertTrue(manager.getEpics().isEmpty() && manager.getSubtasks().isEmpty());
     }
 
     @Test
@@ -163,7 +167,7 @@ class InMemoryTaskManagerTest {
         Task inputTask = new Task("название_2", "описание_2", Status.NEW);
         manager.createTask(inputTask);
         manager.removeTasks();
-        assertTrue(manager.getStorageTasks().isEmpty());
+        assertTrue(manager.getTasks().isEmpty());
     }
 
     @Test
@@ -174,7 +178,7 @@ class InMemoryTaskManagerTest {
         manager.createSubtask(inputSubtask);
         assertEquals(Status.DONE, inputEpic.getCondition());
         manager.removeSubtasks();
-        assertTrue(manager.getStorageSubtasks().isEmpty());
+        assertTrue(manager.getSubtasks().isEmpty());
         assertEquals(Status.NEW, inputEpic.getCondition());
     }
 
@@ -202,7 +206,7 @@ class InMemoryTaskManagerTest {
         manager.updateTask(inputTask2);
         task = manager.getByIdTask(1);
         assertEquals("Второе", task.getName());
-        Task snapshot = manager.getManagerH().getHistory().get(0);
+        Task snapshot = manager.getBrowsingHistory().get(0);
         assertEquals("Первое", snapshot.getName());
     }
 }
