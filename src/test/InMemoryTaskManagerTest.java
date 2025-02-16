@@ -94,6 +94,8 @@ class InMemoryTaskManagerTest {
     @Test
     void removeByIdTaskCheck() {
         Task inputTask = new Task("название_2", "описание_2", Status.NEW);
+        manager.createTask(inputTask);
+        manager.getByIdTask(1);
         manager.removeByIdTask(1);
         assertTrue(manager.getTasks().isEmpty());
     }
@@ -104,6 +106,7 @@ class InMemoryTaskManagerTest {
         manager.createEpic(inputEpic);
         Subtask inputSubtask = new Subtask(1, "название_4", "описание_4", Status.IN_PROGRESS);
         manager.createSubtask(inputSubtask);
+        manager.getByIdSubtask(2);
         manager.removeByIdSubtask(2);
         assertTrue(manager.getSubtasks().isEmpty());
     }

@@ -3,7 +3,7 @@ package managers;
 import tasks.*;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
+import java.util.List;
 
 public interface TaskManager {
 
@@ -21,7 +21,7 @@ public interface TaskManager {
 
     int receiveIdEpic(int search);
 
-    LinkedList<Task> getBrowsingHistory();
+    List<Task> getBrowsingHistory();
 
     ArrayList<Epic> getEpics();
 
