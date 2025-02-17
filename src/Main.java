@@ -23,8 +23,8 @@ public class Main {
         printT(manager.getTasks());
         printS(manager.getSubtasks());
 
-        // Проверяем, что в истории просмотров остается только
-        // один просмотр одной и той же задачи
+        // Проверяем, что в истории остается только
+        // один просмотр из нескольких просмотров одной и той же задачи
         System.out.println(manager.getByIdEpic(1));
         System.out.println(manager.getByIdEpic(3));
         System.out.println(manager.getByIdTask(10));
