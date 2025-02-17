@@ -1,5 +1,3 @@
-package tests;
-
 import tasks.*;
 import managers.InMemoryTaskManager;
 import org.junit.jupiter.api.BeforeEach;
@@ -78,7 +76,7 @@ class InMemoryTaskManagerTest {
         assertTrue(manager.updateSubtask(updateInputSubtask));
     }
 
-  @Test
+    @Test
     void removeByIdEpicCheck() {
         Epic inputEpic = new Epic("название_1", "описание_1", Status.NEW);
         manager.createEpic(inputEpic);
