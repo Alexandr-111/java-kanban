@@ -88,7 +88,7 @@ class InMemoryTaskManagerTest {
         manager.createSubtask(inputSubtask2);
         assertEquals(2, manager.removeByIdEpic(1));
         assertTrue(manager.getEpics().isEmpty());
-        assertTrue( manager.getSubtasks().isEmpty());
+        assertTrue(manager.getSubtasks().isEmpty());
     }
 
     @Test
