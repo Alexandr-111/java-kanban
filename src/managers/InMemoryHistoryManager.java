@@ -85,34 +85,34 @@ public class InMemoryHistoryManager implements HistoryManager {
         return historyMap.containsKey(key);
     }
 
-    private static class Node<Task> {
-        Node<Task> next;
-        Node<Task> previous;
-        Task data;
+    private static class Node<T> {
+        Node<T> next;
+        Node<T> previous;
+        T data;
 
-        public Node(Task data) {
+        public Node(T data) {
             this.data = data;
             this.previous = null;
             this.next = null;
         }
 
-        public Task getData() {
+        public T getData() {
             return data;
         }
 
-        public Node<Task> getNext() {
+        public Node<T> getNext() {
             return next;
         }
 
-        public void setNext(Node<Task> next) {
+        public void setNext(Node<T> next) {
             this.next = next;
         }
 
-        public void setPrevious(Node<Task> previous) {
+        public void setPrevious(Node<T> previous) {
             this.previous = previous;
         }
 
-        public Node<Task> getPrevious() {
+        public Node<T> getPrevious() {
             return previous;
         }
     }
