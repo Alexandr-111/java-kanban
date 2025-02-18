@@ -12,5 +12,5 @@ public interface HistoryManager {
 
     List<Task> getHistory();
 
-    boolean isKey(int key);
+    boolean existInBrowsingHistory(int key);
 }

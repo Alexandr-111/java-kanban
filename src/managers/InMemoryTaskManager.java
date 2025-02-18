@@ -125,12 +125,12 @@ public class InMemoryTaskManager implements TaskManager {
             ArrayList<Integer> del = temp.getListOfId();
             for (Integer r : del) {
                 storageSubtasks.remove(r);
-                if (managerH.isKey(r)) {
+                if (managerH.existInBrowsingHistory(r)) {
                     managerH.remove(r);
                 }
             }
             storageEpics.remove(search);
-            if (managerH.isKey(search)) {
+            if (managerH.existInBrowsingHistory(search)) {
                 managerH.remove(search);
             }
             return del.size();
@@ -142,7 +142,7 @@ public class InMemoryTaskManager implements TaskManager {
     public boolean removeByIdTask(int search) {
         if (storageTasks.containsKey(search)) {
             storageTasks.remove(search);
-            if (managerH.isKey(search)) {
+            if (managerH.existInBrowsingHistory(search)) {
                 managerH.remove(search);
             }
             return true;
@@ -159,7 +159,7 @@ public class InMemoryTaskManager implements TaskManager {
             temp.deleteIdSub(search);
             storageSubtasks.remove(search);
             calculateStatusEpic(idEpic);
-            if (managerH.isKey(search)) {
+            if (managerH.existInBrowsingHistory(search)) {
                 managerH.remove(search);
             }
             return true;

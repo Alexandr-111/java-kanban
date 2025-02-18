@@ -208,6 +208,7 @@ class InMemoryTaskManagerTest {
         task = manager.getByIdTask(1);
         assertEquals("Второе", task.getName());
         Task snapshot = manager.getBrowsingHistory().get(0);
-        assertEquals("Первое", snapshot.getName());
+        assertEquals("Второе", snapshot.getName());
+        assertEquals(1, manager.getBrowsingHistory().size());
     }
 }

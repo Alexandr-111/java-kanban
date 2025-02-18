@@ -5,19 +5,35 @@ import tasks.*;
 import java.util.*;
 
 public class InMemoryHistoryManager implements HistoryManager {
-    private final Map<Integer, Node> historyMap = new HashMap<>();
-    private Node head;
-    private Node tail;
+    private final Map<Integer, Node<Task>> historyMap = new HashMap<>();
+    private Node<Task> head;
+    private Node<Task> tail;
 
     @Override
     public List<Task> getHistory() {
         List<Task> result = new ArrayList<>();
-        Node node = head;
+        Node<Task> node = head;
         while (Objects.nonNull(node)) {
             result.add(node.getData());
             node = node.getNext();
         }
         return List.copyOf(result);
+    }
+
+    private Node<Task> linkLast(Task task) {
+        Node<Task> current = null;
+        if (Objects.nonNull(task)) {
+            if (head == null) {
+                current = new Node<>(task);
+                head = current;
+            } else {
+                current = new Node<>(task);
+                current.setPrevious(tail);
+                tail.setNext(current);
+            }
+            tail = current;
+        }
+        return current;
     }
 
     @Override
@@ -27,35 +43,25 @@ public class InMemoryHistoryManager implements HistoryManager {
             if (historyMap.containsKey(id)) {
                 remove(id);
             }
-            Node current;
-            if (head == null) {
-                current = new Node(task);
-                head = current;
-                tail = current;
-            } else {
-                current = new Node(task);
-                current.setPrevious(tail);
-                tail.setNext(current);
-                tail = current;
-            }
-            historyMap.put(id, current);
+            historyMap.put(id, linkLast(task));
         }
     }
 
     @Override
     public void remove(int id) {
-        Node current = historyMap.get(id);
+        Node<Task> current = historyMap.get(id);
         removeNode(current);
         historyMap.remove(id);
     }
 
-    private void removeNode(Node current) {
+    private void removeNode(Node<Task> current) {
         if (Objects.nonNull(current)) {
-            Node prevN;
-            Node nextN;
+            Node<Task> prevN;
+            Node<Task> nextN;
             if (current.equals(head)) {
                 if (current.getNext() == null) {
-                    return;
+                    head = null;
+                    tail = null;
                 } else {
                     nextN = current.getNext();
                     nextN.setPrevious(null);
@@ -75,13 +81,13 @@ public class InMemoryHistoryManager implements HistoryManager {
     }
 
     @Override
-    public boolean isKey(int key) {
+    public boolean existInBrowsingHistory(int key) {
         return historyMap.containsKey(key);
     }
 
-    private class Node {
-        Node next;
-        Node previous;
+    private static class Node<Task> {
+        Node<Task> next;
+        Node<Task> previous;
         Task data;
 
         public Node(Task data) {
@@ -94,19 +100,19 @@ public class InMemoryHistoryManager implements HistoryManager {
             return data;
         }
 
-        public Node getNext() {
+        public Node<Task> getNext() {
             return next;
         }
 
-        public void setNext(Node next) {
+        public void setNext(Node<Task> next) {
             this.next = next;
         }
 
-        public void setPrevious(Node previous) {
+        public void setPrevious(Node<Task> previous) {
             this.previous = previous;
         }
 
-        public Node getPrevious() {
+        public Node<Task> getPrevious() {
             return previous;
         }
     }
