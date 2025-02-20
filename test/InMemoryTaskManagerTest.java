@@ -1,5 +1,3 @@
-package test;
-
 import tasks.*;
 import managers.InMemoryTaskManager;
 import org.junit.jupiter.api.BeforeEach;
@@ -78,7 +76,7 @@ class InMemoryTaskManagerTest {
         assertTrue(manager.updateSubtask(updateInputSubtask));
     }
 
-  @Test
+    @Test
     void removeByIdEpicCheck() {
         Epic inputEpic = new Epic("название_1", "описание_1", Status.NEW);
         manager.createEpic(inputEpic);
@@ -88,12 +86,14 @@ class InMemoryTaskManagerTest {
         manager.createSubtask(inputSubtask2);
         assertEquals(2, manager.removeByIdEpic(1));
         assertTrue(manager.getEpics().isEmpty());
-        assertTrue( manager.getSubtasks().isEmpty());
+        assertTrue(manager.getSubtasks().isEmpty());
     }
 
     @Test
     void removeByIdTaskCheck() {
         Task inputTask = new Task("название_2", "описание_2", Status.NEW);
+        manager.createTask(inputTask);
+        manager.getByIdTask(1);
         manager.removeByIdTask(1);
         assertTrue(manager.getTasks().isEmpty());
     }
@@ -104,6 +104,7 @@ class InMemoryTaskManagerTest {
         manager.createEpic(inputEpic);
         Subtask inputSubtask = new Subtask(1, "название_4", "описание_4", Status.IN_PROGRESS);
         manager.createSubtask(inputSubtask);
+        manager.getByIdSubtask(2);
         manager.removeByIdSubtask(2);
         assertTrue(manager.getSubtasks().isEmpty());
     }
@@ -207,6 +208,7 @@ class InMemoryTaskManagerTest {
         task = manager.getByIdTask(1);
         assertEquals("Второе", task.getName());
         Task snapshot = manager.getBrowsingHistory().get(0);
-        assertEquals("Первое", snapshot.getName());
+        assertEquals("Второе", snapshot.getName());
+        assertEquals(1, manager.getBrowsingHistory().size());
     }
 }

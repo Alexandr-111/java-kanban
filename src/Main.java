@@ -23,17 +23,37 @@ public class Main {
         printT(manager.getTasks());
         printS(manager.getSubtasks());
 
+        // Проверяем, что в истории остается только
+        // один просмотр из нескольких просмотров одной и той же задачи
         System.out.println(manager.getByIdEpic(1));
         System.out.println(manager.getByIdEpic(3));
         System.out.println(manager.getByIdTask(10));
-        System.out.println(manager.getByIdSubtask(7));
+        System.out.println(manager.getByIdEpic(1));
+        System.out.println(manager.getByIdSubtask(5));
+        System.out.println(manager.getByIdSubtask(4));
         System.out.println(manager.getByIdSubtask(9));
+        System.out.println(manager.getByIdSubtask(5));
 
-        // Проверяем, что в истории просмотров остаются оба состояния задачи,
-        // предыдущая версия и версия после обновления
+        //   Проверяем, что в истории просмотров остается состояние задачи
+        //   именно на момент последнего просмотра, а не предыдущего.
         manager.updateTask(new Task("Новая задача", "Новое описание", Status.IN_PROGRESS, 10));
         System.out.println(manager.getByIdTask(10));
+        System.out.println("История просмотров:");
+        System.out.println(manager.getBrowsingHistory());
 
+        //Удалим задачу, которая есть в истории, и проверим, что при печати она не будет выводиться
+        manager.removeByIdTask(10);
+        System.out.println("История просмотров:");
+        System.out.println(manager.getBrowsingHistory());
+
+        //Удалим подзадачу, которая есть в истории, и проверим, что при печати она не будет выводиться
+        manager.removeByIdSubtask(9);
+        System.out.println("История просмотров:");
+        System.out.println(manager.getBrowsingHistory());
+
+        // Удалим  эпик с двумя его подзадачами и убедимся, что из истории
+        // удалился как сам эпик, так и все его подзадачи (id = 4 и id = 5)
+        manager.removeByIdEpic(1);
         System.out.println("История просмотров:");
         System.out.println(manager.getBrowsingHistory());
     }

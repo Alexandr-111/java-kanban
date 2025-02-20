@@ -27,7 +27,7 @@ public class InMemoryTaskManager implements TaskManager {
         return new ArrayList<>(storageSubtasks.values());
     }
 
-    public LinkedList<Task> getBrowsingHistory() {
+    public List<Task> getBrowsingHistory() {
         return managerH.getHistory();
     }
 
@@ -125,8 +125,14 @@ public class InMemoryTaskManager implements TaskManager {
             ArrayList<Integer> del = temp.getListOfId();
             for (Integer r : del) {
                 storageSubtasks.remove(r);
+                if (managerH.existInBrowsingHistory(r)) {
+                    managerH.remove(r);
+                }
             }
             storageEpics.remove(search);
+            if (managerH.existInBrowsingHistory(search)) {
+                managerH.remove(search);
+            }
             return del.size();
         }
         return -1;
@@ -136,6 +142,9 @@ public class InMemoryTaskManager implements TaskManager {
     public boolean removeByIdTask(int search) {
         if (storageTasks.containsKey(search)) {
             storageTasks.remove(search);
+            if (managerH.existInBrowsingHistory(search)) {
+                managerH.remove(search);
+            }
             return true;
         }
         return false;
@@ -150,6 +159,9 @@ public class InMemoryTaskManager implements TaskManager {
             temp.deleteIdSub(search);
             storageSubtasks.remove(search);
             calculateStatusEpic(idEpic);
+            if (managerH.existInBrowsingHistory(search)) {
+                managerH.remove(search);
+            }
             return true;
         }
         return false;
