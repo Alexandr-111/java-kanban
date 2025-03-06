@@ -1,4 +1,3 @@
-import exceptions.ManagerSaveException;
 import tasks.*;
 import managers.*;
 
@@ -6,12 +5,8 @@ import java.util.ArrayList;
 
 public class Main {
     public static void main(String[] args) {
-        FileBackedTaskManager managerF = null;
-        try {
-            managerF = Managers.getDefaultManagerWithFile();
-        } catch (ManagerSaveException e) {
-            System.out.println(e.getMessage());
-        }
+        FileBackedTaskManager managerF;
+        managerF = Managers.getDefaultManagerWithFile();
         if (managerF != null) {
             for (int i = 1; i < 4; i++) {
                 managerF.createEpic(new Epic("Эпик_" + i, "Описание эпика", Status.NEW));
@@ -43,14 +38,19 @@ public class Main {
 
             // Создадим второй экземпляр менеджера FileBackedTaskManager, загрузим в него сохранение из файла save.csv
             // Выведем состояние хранилища в консоль и убедимся в том, что задачи в обоих менеджерах идентичны
-            FileBackedTaskManager managerF2 = null;
-            try {
-              managerF2 = Managers.getDefaultManagerWithFile();
-            } catch (ManagerSaveException e) {
-                System.out.println(e.getMessage());
-            }
+            FileBackedTaskManager managerF2;
+            managerF2 = Managers.getDefaultManagerWithFile();
             if (managerF2 != null) {
-                System.out.println("Список всех задач managerF2:");
+                System.out.println("Список всех задач в managerF2:");
+                printE(managerF2.getEpics());
+                printS(managerF2.getSubtasks());
+                printT(managerF2.getTasks());
+                System.out.println("________________________________________________________________");
+
+                // Создадим еще одну задачу, для того чтобы проверить правильно ли присваиваются id,
+                // задачам, которые созданы уже после загрузки из файла с сохранением
+                managerF2.createTask(new Task("Задача", "Description_1", Status.NEW));
+                System.out.println("Список всех задач в managerF2:");
                 printE(managerF2.getEpics());
                 printS(managerF2.getSubtasks());
                 printT(managerF2.getTasks());

@@ -12,21 +12,17 @@ import tasks.*;
 
 public class FileBackedTaskManager extends InMemoryTaskManager implements TaskManager {
 
-    public static final String FILE_SAVE = "C:\\Users\\11111\\dev\\java-kanban\\src\\resources\\save.csv";
+    public static final String FILE_SAVE = "src\\resources\\save.csv";
     public static final Charset CS8 = StandardCharsets.UTF_8;
     public Path path;
 
-    public FileBackedTaskManager(String str) throws ManagerSaveException {
-        try {
-            if (Objects.nonNull(str)) {
-                this.path = Path.of(str);
-            }
-        } catch (Exception e) {
-            throw new ManagerSaveException("Произошла ошибка. Перезапустите программу.");
+    public FileBackedTaskManager(String str) {
+        if (Objects.nonNull(str)) {
+            this.path = Path.of(str);
         }
     }
 
-    public void save() throws ManagerSaveException {
+    private void save() {
         try (BufferedWriter bufferW = new BufferedWriter(new FileWriter(path.toFile(), CS8))) {
             bufferW.write(TaskCSVFormat.getHeader());
             bufferW.newLine();
@@ -50,120 +46,84 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
                 bufferW.flush();
             }
         } catch (IOException exp) {
-            throw new ManagerSaveException("Произошла ошибка. Перезапустите программу.");
+            throw new ManagerSaveException();
         }
     }
 
     @Override
     public boolean createTask(Task inputTask) {
         boolean b = super.createTask(inputTask);
-        try {
-            save();
-        } catch (ManagerSaveException e) {
-            System.out.println(e.getMessage());
-        }
+        save();
         return b;
     }
 
     @Override
     public boolean createEpic(Epic inputEpic) {
         boolean b = super.createEpic(inputEpic);
-        try {
-            save();
-        } catch (ManagerSaveException e) {
-            System.out.println(e.getMessage());
-        }
+        save();
         return b;
     }
 
     @Override
     public boolean createSubtask(Subtask inputSubtask) {
         boolean b = super.createSubtask(inputSubtask);
-        try {
-            save();
-        } catch (ManagerSaveException e) {
-            System.out.println(e.getMessage());
-        }
+        save();
         return b;
     }
 
     @Override
     public boolean updateTask(Task inputTask) {
         boolean b = super.updateTask(inputTask);
-        try {
-            save();
-        } catch (ManagerSaveException e) {
-            System.out.println(e.getMessage());
-        }
+        save();
         return b;
     }
 
     @Override
     public boolean updateEpic(Epic inputEpic) {
         boolean b = super.updateEpic(inputEpic);
-        try {
-            save();
-        } catch (ManagerSaveException e) {
-            System.out.println(e.getMessage());
-        }
+        save();
         return b;
     }
 
     @Override
     public boolean updateSubtask(Subtask inputSubtask) {
         boolean b = super.updateSubtask(inputSubtask);
-        try {
-            save();
-        } catch (ManagerSaveException e) {
-            System.out.println(e.getMessage());
-        }
+        save();
         return b;
     }
 
     @Override
     public boolean removeByIdTask(int search) {
         boolean b = super.removeByIdTask(search);
-        try {
-            save();
-        } catch (ManagerSaveException e) {
-            System.out.println(e.getMessage());
-        }
+        save();
         return b;
     }
 
     @Override
     public int removeByIdEpic(int search) {
         int b = super.removeByIdEpic(search);
-        try {
-            save();
-        } catch (ManagerSaveException e) {
-            System.out.println(e.getMessage());
-        }
+        save();
         return b;
     }
 
     @Override
     public boolean removeByIdSubtask(int search) {
         boolean b = super.removeByIdSubtask(search);
-        try {
-            save();
-        } catch (ManagerSaveException e) {
-            System.out.println(e.getMessage());
-        }
+        save();
         return b;
     }
 
     private static void makeNewFile(Path path) throws ManagerSaveException {
-        try {
-            if (Files.notExists(path)) {
+        if (Files.notExists(path)) {
+            try {
                 Files.createFile(path);
+            } catch (IOException e) {
+                throw new ManagerSaveException();
             }
-        } catch (Exception e) {
-            throw new ManagerSaveException("Произошла ошибка. Перезапустите программу.");
         }
     }
 
-    public static FileBackedTaskManager loadFromFile() throws ManagerSaveException {
+    public static FileBackedTaskManager loadFromFile() {
         FileBackedTaskManager managerF;
         try {
             managerF = new FileBackedTaskManager(FILE_SAVE);
@@ -171,6 +131,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
             if (Objects.nonNull(managerF.path)) {
                 String str = Files.readString(managerF.path, CS8);
                 String[] arraySave = str.split("\r\n");
+                int max = 0;
                 for (int i = 1; i < arraySave.length; i++) {
                     String line = arraySave[i];
                     String[] param = line.split(",");
@@ -187,10 +148,15 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
                         Epic temp = managerF.storageEpics.get(Integer.parseInt(param[5]));
                         temp.addIdSub(Integer.parseInt(param[0]));
                     }
+                    if (Integer.parseInt(param[0]) > max) {
+                        max = Integer.parseInt(param[0]);
+                    }
                 }
+                // Восстанавливаем значение поля counterId
+                managerF.setCounterId(max);
             }
         } catch (IOException e) {
-            throw new ManagerSaveException("Произошла ошибка. Перезапустите программу.");
+            throw new ManagerSaveException();
         }
         return managerF;
     }

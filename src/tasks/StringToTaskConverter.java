@@ -4,7 +4,7 @@ public class StringToTaskConverter {
     private StringToTaskConverter() {
     }
 
-    private static Status fromStringToStatus(String st) {
+    public static Status fromStringToStatus(String st) {
         Status status = null;
         if (st.equals("NEW")) {
             status = Status.NEW;

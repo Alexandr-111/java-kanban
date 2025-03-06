@@ -6,3 +6,4 @@ id,type,name,status,description,epic
 8,SUBTASK,Подзадача_3,DONE,Описание задачи,3
 9,SUBTASK,Подзадача_18,NEW,Описание 555,3
 10,TASK,Новая задача,IN_PROGRESS,Новое описание,
+11,TASK,Задача,NEW,Description_1,
