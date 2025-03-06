@@ -1,9 +1,0 @@
-id,type,name,status,description,epic
-2,EPIC,Эпик_2,IN_PROGRESS,Описание эпика,
-3,EPIC,Эпик_3,IN_PROGRESS,Описание эпика,
-6,SUBTASK,Подзадача_2,DONE,Описание задачи,2
-7,SUBTASK,Подзадача_12,NEW,Описание 555,2
-8,SUBTASK,Подзадача_3,DONE,Описание задачи,3
-9,SUBTASK,Подзадача_18,NEW,Описание 555,3
-10,TASK,Новая задача,IN_PROGRESS,Новое описание,
-11,TASK,Задача,NEW,Description_1,

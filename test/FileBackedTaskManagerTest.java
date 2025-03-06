@@ -30,10 +30,7 @@ public class FileBackedTaskManagerTest {
         try {
             boolean b = managerF.createTask(new Task("название_2", "описание_2", Status.NEW));
             assertTrue(b);
-            String str_1 = """
-                    id,type,name,status,description,epic\r
-                    1,TASK,название_2,NEW,описание_2,\r
-                    """;
+            String str_1 = "id,type,name,status,description,epic\r\n" + "1,TASK,название_2,NEW,описание_2,\r\n";
             String str_2 = Files.readString(managerF.path, CS8);
             assertEquals(str_1, str_2);
         } catch (IOException e) {
@@ -63,10 +60,7 @@ public class FileBackedTaskManagerTest {
             assertTrue(b);
             boolean c = managerF.updateTask(new Task("название_10", "описание_20", Status.DONE, 1));
             assertTrue(c);
-            String str_1 = """
-                    id,type,name,status,description,epic\r
-                    1,TASK,название_10,DONE,описание_20,\r
-                    """;
+            String str_1 = "id,type,name,status,description,epic\r\n" + "1,TASK,название_10,DONE,описание_20,\r\n";
             String str_2 = Files.readString(managerF.path, CS8);
             assertEquals(str_1, str_2);
         } catch (IOException e) {
@@ -83,11 +77,8 @@ public class FileBackedTaskManagerTest {
                     (new Subtask(1, "название_5", "описание_71", Status.NEW, 1));
             assertTrue(a && b && c);
             managerF.removeByIdTask(2);
-            String str_1 = """
-                    id,type,name,status,description,epic\r
-                    1,EPIC,название_5,NEW,описание_5,\r
-                    3,SUBTASK,название_5,NEW,описание_71,1\r
-                    """;
+            String str_1 = "id,type,name,status,description,epic\r\n" + "1,EPIC,название_5,NEW,описание_5,\r\n"
+                    + "3,SUBTASK,название_5,NEW,описание_71,1\r\n";
             String str_2 = Files.readString(managerF.path, CS8);
             assertEquals(str_1, str_2);
         } catch (IOException e) {
