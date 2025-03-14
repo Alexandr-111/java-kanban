@@ -4,58 +4,58 @@ import managers.*;
 import java.util.ArrayList;
 
 public class Main {
-
     public static void main(String[] args) {
+        FileBackedTaskManager managerF;
+        managerF = Managers.getDefaultManagerWithFile();
+        if (managerF != null) {
+            for (int i = 1; i < 4; i++) {
+                managerF.createEpic(new Epic("Эпик_" + i, "Описание эпика", Status.NEW));
+            }
+            for (int i = 1; i < 4; i++) {
+                managerF.createSubtask(new Subtask(i, "Подзадача_" + i, "Описание задачи", Status.DONE));
+                managerF.createSubtask(new Subtask(i, "Подзадача_" + i * 6, "Описание 555", Status.NEW));
+            }
+            for (int i = 1; i < 3; i++) {
+                managerF.createTask(new Task("Задача_" + i, "Описание задачи", Status.NEW));
+            }
+            //   Проверяем, что в файле сохраняется состоянии задач после их обновления
+            managerF.updateTask(new Task("Новая задача", "Новое описание", Status.IN_PROGRESS, 10));
+            managerF.updateSubtask(new Subtask(1, "Новая", "Описание7", Status.DONE, 5));
 
-        TaskManager manager = Managers.getDefault();
-        for (int i = 1; i < 4; i++) {
-            manager.createEpic(new Epic("Эпик_" + i, "Описание_" + i, Status.NEW));
+            //Удалим задачу и проверим, что она не будет сохраняться в файле
+            managerF.removeByIdTask(11);
+
+            // Удалим  эпик с двумя его подзадачами и убедимся, что в файле не сохраняется
+            //  как сам эпик, так и все его подзадачи (id = 4 и id = 5)
+            managerF.removeByIdEpic(1);
+
+            // Напечатаем в консоли список всех задач в хэш-таблицах и убедимся,что в файле сохранились такие же задачи
+            System.out.println("Список всех задач в managerF:");
+            printE(managerF.getEpics());
+            printS(managerF.getSubtasks());
+            printT(managerF.getTasks());
+            System.out.println("________________________________________________________________");
+
+            // Создадим второй экземпляр менеджера FileBackedTaskManager, загрузим в него сохранение из файла save.csv
+            // Выведем состояние хранилища в консоль и убедимся в том, что задачи в обоих менеджерах идентичны
+            FileBackedTaskManager managerF2;
+            managerF2 = Managers.getDefaultManagerWithFile();
+            if (managerF2 != null) {
+                System.out.println("Список всех задач в managerF2:");
+                printE(managerF2.getEpics());
+                printS(managerF2.getSubtasks());
+                printT(managerF2.getTasks());
+                System.out.println("________________________________________________________________");
+
+                // Создадим еще одну задачу, для того чтобы проверить правильно ли присваиваются id,
+                // задачам, которые созданы уже после загрузки из файла с сохранением
+                managerF2.createTask(new Task("Задача", "Description_1", Status.NEW));
+                System.out.println("Список всех задач в managerF2:");
+                printE(managerF2.getEpics());
+                printS(managerF2.getSubtasks());
+                printT(managerF2.getTasks());
+            }
         }
-        for (int i = 1; i < 4; i++) {
-            manager.createSubtask(new Subtask(i, "Подзадача", "Описание_" + i, Status.DONE));
-            manager.createSubtask(new Subtask(i, "Подзадача", "Описание_" + (i + 2), Status.NEW));
-        }
-        for (int i = 1; i < 3; i++) {
-            manager.createTask(new Task("Задача_" + i, "Описание_" + i, Status.NEW));
-        }
-        System.out.println("Список всех задач:");
-        printE(manager.getEpics());
-        printT(manager.getTasks());
-        printS(manager.getSubtasks());
-
-        // Проверяем, что в истории остается только
-        // один просмотр из нескольких просмотров одной и той же задачи
-        System.out.println(manager.getByIdEpic(1));
-        System.out.println(manager.getByIdEpic(3));
-        System.out.println(manager.getByIdTask(10));
-        System.out.println(manager.getByIdEpic(1));
-        System.out.println(manager.getByIdSubtask(5));
-        System.out.println(manager.getByIdSubtask(4));
-        System.out.println(manager.getByIdSubtask(9));
-        System.out.println(manager.getByIdSubtask(5));
-
-        //   Проверяем, что в истории просмотров остается состояние задачи
-        //   именно на момент последнего просмотра, а не предыдущего.
-        manager.updateTask(new Task("Новая задача", "Новое описание", Status.IN_PROGRESS, 10));
-        System.out.println(manager.getByIdTask(10));
-        System.out.println("История просмотров:");
-        System.out.println(manager.getBrowsingHistory());
-
-        //Удалим задачу, которая есть в истории, и проверим, что при печати она не будет выводиться
-        manager.removeByIdTask(10);
-        System.out.println("История просмотров:");
-        System.out.println(manager.getBrowsingHistory());
-
-        //Удалим подзадачу, которая есть в истории, и проверим, что при печати она не будет выводиться
-        manager.removeByIdSubtask(9);
-        System.out.println("История просмотров:");
-        System.out.println(manager.getBrowsingHistory());
-
-        // Удалим  эпик с двумя его подзадачами и убедимся, что из истории
-        // удалился как сам эпик, так и все его подзадачи (id = 4 и id = 5)
-        manager.removeByIdEpic(1);
-        System.out.println("История просмотров:");
-        System.out.println(manager.getBrowsingHistory());
     }
 
     static void printE(ArrayList<Epic> records) {

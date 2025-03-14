@@ -7,9 +7,9 @@ import java.util.*;
 public class InMemoryTaskManager implements TaskManager {
 
     private int counterId = 0;
-    private final Map<Integer, Epic> storageEpics = new HashMap<>();
-    private final Map<Integer, Task> storageTasks = new HashMap<>();
-    private final Map<Integer, Subtask> storageSubtasks = new HashMap<>();
+    protected final Map<Integer, Epic> storageEpics = new HashMap<>();
+    protected final Map<Integer, Task> storageTasks = new HashMap<>();
+    protected final Map<Integer, Subtask> storageSubtasks = new HashMap<>();
     private final HistoryManager managerH = Managers.getDefaultHistory();
 
     @Override
@@ -35,6 +35,10 @@ public class InMemoryTaskManager implements TaskManager {
         return counterId;
     }
 
+    protected void setCounterId(int counterId) {
+        this.counterId = counterId;
+    }
+
     @Override
     public boolean createTask(Task inputTask) {
         if (!Objects.isNull(inputTask)) {
@@ -52,8 +56,8 @@ public class InMemoryTaskManager implements TaskManager {
             int id = inputTask.getId();
             if (storageTasks.containsKey(id)) {
                 storageTasks.put(id, inputTask);
+                return true;
             }
-            return true;
         }
         return false;
     }
@@ -75,8 +79,8 @@ public class InMemoryTaskManager implements TaskManager {
             int id = inputEpic.getId();
             if (storageEpics.containsKey(id)) {
                 storageEpics.put(id, inputEpic);
+                return true;
             }
-            return true;
         }
         return false;
     }
@@ -92,8 +96,8 @@ public class InMemoryTaskManager implements TaskManager {
                 temp.addIdSub(id);
                 storageSubtasks.put(id, inputSubtask);
                 calculateStatusEpic(idEpic);
+                return true;
             }
-            return true;
         }
         return false;
     }
@@ -106,8 +110,8 @@ public class InMemoryTaskManager implements TaskManager {
                 int idEpic = inputSubtask.getIdenEpic();
                 storageSubtasks.put(id, inputSubtask);
                 calculateStatusEpic(idEpic);
+                return true;
             }
-            return true;
         }
         return false;
     }
