@@ -31,8 +31,8 @@ public class InMemoryTaskManagerTest extends TaskManagerTest<InMemoryTaskManager
         LocalDateTime dateTime = LocalDateTime.of(2025, 5, 25, 12, 30);
         Task inputTask = new Task("название_2", "описание_2", Status.DONE, dateTime, duration);
         manager.createTask(inputTask);
-        Task updateInputTask = new Task
-                ("название_22", "описание_22", Status.NEW, 1, dateTime, duration);
+        Task updateInputTask = new Task("название_22", "описание_22",
+                Status.NEW, 1, dateTime, duration);
         assertTrue(manager.updateTask(updateInputTask));
     }
 
@@ -58,8 +58,8 @@ public class InMemoryTaskManagerTest extends TaskManagerTest<InMemoryTaskManager
         LocalDateTime dateTime = LocalDateTime.of(2025, 5, 25, 12, 30);
         Epic inputEpic = new Epic("название_1", "описание_1", Status.NEW);
         manager.createEpic(inputEpic);
-        Subtask inputSubtask = new Subtask
-                (1, "название_3", "описание_3", Status.NEW, dateTime, duration);
+        Subtask inputSubtask = new Subtask(1, "название_3",
+                "описание_3", Status.NEW, dateTime, duration);
         assertTrue(manager.createSubtask(inputSubtask));
         ArrayList<Subtask> s = manager.getSubtasks();
         assertEquals(1, s.size());
@@ -71,8 +71,8 @@ public class InMemoryTaskManagerTest extends TaskManagerTest<InMemoryTaskManager
         LocalDateTime dateTime = LocalDateTime.of(2025, 5, 25, 12, 30);
         Epic inputEpic = new Epic("название_1", "описание_1", Status.NEW);
         manager.createEpic(inputEpic);
-        Subtask inputSubtask = new Subtask
-                (1, "название_3", "описание_3", Status.NEW, dateTime, duration);
+        Subtask inputSubtask = new Subtask(1, "название_3", "описание_3",
+                Status.NEW, dateTime, duration);
         manager.createSubtask(inputSubtask);
         Subtask updateInputSubtask = new Subtask(1, "название_33",
                 "описание_33", Status.DONE, 2, dateTime, duration);
@@ -87,11 +87,11 @@ public class InMemoryTaskManagerTest extends TaskManagerTest<InMemoryTaskManager
         LocalDateTime dateTime2 = LocalDateTime.of(2025, 5, 25, 18, 30);
         Epic inputEpic = new Epic("название_1", "описание_1", Status.NEW);
         manager.createEpic(inputEpic);
-        Subtask inputSubtask = new Subtask
-                (1, "название_3", "описание_3", Status.DONE, dateTime, duration);
+        Subtask inputSubtask = new Subtask(1, "название_3", "описание_3",
+                Status.DONE, dateTime, duration);
         manager.createSubtask(inputSubtask);
-        Subtask inputSubtask2 = new Subtask
-                (1, "название_4", "описание_4", Status.IN_PROGRESS, dateTime2, duration2);
+        Subtask inputSubtask2 = new Subtask(1, "название_4", "описание_4",
+                Status.IN_PROGRESS, dateTime2, duration2);
         manager.createSubtask(inputSubtask2);
         assertEquals(2, manager.removeByIdEpic(1));
         assertTrue(manager.getEpics().isEmpty());
@@ -115,8 +115,8 @@ public class InMemoryTaskManagerTest extends TaskManagerTest<InMemoryTaskManager
         LocalDateTime dateTime = LocalDateTime.of(2025, 5, 25, 12, 30);
         Epic inputEpic = new Epic("название_7", "описание_7", Status.NEW);
         manager.createEpic(inputEpic);
-        Subtask inputSubtask = new Subtask
-                (1, "название_4", "описание_4", Status.IN_PROGRESS, dateTime, duration);
+        Subtask inputSubtask = new Subtask(1, "название_4", "описание_4",
+                Status.IN_PROGRESS, dateTime, duration);
         manager.createSubtask(inputSubtask);
         manager.getByIdSubtask(2);
         manager.removeByIdSubtask(2);
@@ -129,8 +129,8 @@ public class InMemoryTaskManagerTest extends TaskManagerTest<InMemoryTaskManager
         LocalDateTime dateTime = LocalDateTime.of(2025, 5, 25, 12, 30);
         Epic inputEpic = new Epic("название_7", "описание_7", Status.NEW);
         manager.createEpic(inputEpic);
-        Subtask inputSubtask = new Subtask
-                (1, "название_3", "описание_3", Status.DONE, dateTime, duration);
+        Subtask inputSubtask = new Subtask(1, "название_3", "описание_3",
+                Status.DONE, dateTime, duration);
         manager.createSubtask(inputSubtask);
         assertEquals(1, manager.receiveIdEpic(2));
     }
@@ -271,10 +271,10 @@ public class InMemoryTaskManagerTest extends TaskManagerTest<InMemoryTaskManager
         LocalDateTime dateTime = LocalDateTime.of(2025, 5, 25, 12, 30);
         Duration duration2 = Duration.ofMinutes(60L);
         LocalDateTime dateTime2 = LocalDateTime.of(2025, 5, 25, 12, 45);
-        boolean a = manager.createTask
-                (new Task("название_2", "описание_2", Status.NEW, dateTime, duration));
-        boolean b = manager.createTask
-                (new Task("название_3", "описание_3", Status.NEW, dateTime2, duration2));
+        boolean a = manager.createTask(new Task("название_2", "описание_2",
+                Status.NEW, dateTime, duration));
+        boolean b = manager.createTask(new Task("название_3",
+                "описание_3", Status.NEW, dateTime2, duration2));
         assertTrue(a && b);
         assertEquals(1, manager.getPrioritizedTasks().size());
     }

@@ -7,8 +7,8 @@ public class Subtask extends Task {
     private final int idenEpic;
 
     // Конструктор вызывается при создании задач
-    public Subtask
-    (int idenEpic, String name, String description, Status condition, LocalDateTime startTime, Duration duration) {
+    public Subtask(int idenEpic, String name, String description, Status condition,
+                   LocalDateTime startTime, Duration duration) {
         super(name, description, condition, startTime, duration);
         this.idenEpic = idenEpic;
     }

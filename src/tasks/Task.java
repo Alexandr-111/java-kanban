@@ -24,8 +24,8 @@ public class Task {
     }
 
     // Конструктор вызывается при обновлении задач, когда id уже известен
-    public Task
-    (String name, String description, Status condition, int id, LocalDateTime startTime, Duration duration) {
+    public Task(String name, String description, Status condition, int id, LocalDateTime startTime,
+                Duration duration) {
         this.name = name;
         this.description = description;
         this.condition = condition;

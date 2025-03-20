@@ -128,9 +128,8 @@ public class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskMan
             boolean c = manager.createEpic(new Epic("название_5", "описание_5", Status.DONE));
             boolean a = manager.createTask(new Task("название_42", "описание_98",
                     Status.IN_PROGRESS, dateTime, duration));
-            boolean b = manager.createSubtask
-                    (new Subtask(1, "название_5", "описание_71",
-                            Status.NEW, 1, dateTime2, duration2));
+            boolean b = manager.createSubtask(new Subtask(1, "название_5", "описание_71",
+                    Status.NEW, 1, dateTime2, duration2));
             assertTrue(a && b && c);
             manager.removeByIdTask(2);
             String str_0 = """
