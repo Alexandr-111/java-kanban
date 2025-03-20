@@ -6,6 +6,8 @@ import tasks.*;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Duration;
+import java.time.LocalDateTime;
 
 import static managers.FileBackedTaskManager.CS8;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -27,17 +29,20 @@ public class TaskCSVFormatTest {
 
     @Test
     void getHeaderCheck() {
-        String str = "id,type,name,status,description,epic";
+        String str = "id,type,name,status,description,startTime,duration,endTime,epicId";
         String line = TaskCSVFormat.getHeader();
         assertEquals(str, line);
     }
 
     @Test
     void toStringTaskCheck() {
-        boolean b = managerF.createTask(new Task("Новая задача", "Новое описание", Status.IN_PROGRESS));
+        Duration duration = Duration.ofMinutes(390L);
+        LocalDateTime dateTime = LocalDateTime.of(2025, 6, 20, 15, 10);
+        boolean b = managerF.createTask(new Task("Задача_10", "Описание568",
+                Status.IN_PROGRESS, dateTime, duration));
         assertTrue(b);
         Task temp = managerF.getByIdTask(1);
-        String str = "1,TASK,Новая задача,IN_PROGRESS,Новое описание,";
+        String str = "1,TASK,Задача_10,IN_PROGRESS,Описание568,2025-06-20T15:10,390,2025-06-20T21:40,";
         String result = TaskCSVFormat.toStringTask(temp);
         assertEquals(str, result);
     }

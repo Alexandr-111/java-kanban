@@ -22,29 +22,33 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
         }
     }
 
+    // Метод для записи строки
+    private void writeLine(BufferedWriter bufferW, String line) {
+        try {
+            bufferW.write(line);
+            bufferW.newLine();
+            bufferW.flush();
+        } catch (IOException e) {
+            throw new ManagerSaveException();
+        }
+    }
+
     private void save() {
         try (BufferedWriter bufferW = new BufferedWriter(new FileWriter(path.toFile(), CS8))) {
             bufferW.write(TaskCSVFormat.getHeader());
             bufferW.newLine();
             bufferW.flush();
-            for (Map.Entry<Integer, Epic> element : this.storageEpics.entrySet()) {
-                Epic epic = element.getValue();
-                bufferW.write(TaskCSVFormat.toStringEpic(epic));
-                bufferW.newLine();
-                bufferW.flush();
-            }
-            for (Map.Entry<Integer, Subtask> element : this.storageSubtasks.entrySet()) {
-                Subtask subtask = element.getValue();
-                bufferW.write(TaskCSVFormat.toStringSubtask(subtask));
-                bufferW.newLine();
-                bufferW.flush();
-            }
-            for (Map.Entry<Integer, Task> element : this.storageTasks.entrySet()) {
-                Task task = element.getValue();
-                bufferW.write(TaskCSVFormat.toStringTask(task));
-                bufferW.newLine();
-                bufferW.flush();
-            }
+            this.storageEpics.values().stream()
+                    .map(TaskCSVFormat::toStringEpic)
+                    .forEach(line -> writeLine(bufferW, line));
+
+            this.storageSubtasks.values().stream()
+                    .map(TaskCSVFormat::toStringSubtask)
+                    .forEach(line -> writeLine(bufferW, line));
+
+            this.storageTasks.values().stream()
+                    .map(TaskCSVFormat::toStringTask)
+                    .forEach(line -> writeLine(bufferW, line));
         } catch (IOException exp) {
             throw new ManagerSaveException();
         }
@@ -113,7 +117,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
         return b;
     }
 
-    private static void makeNewFile(Path path) throws ManagerSaveException {
+    public static void makeNewFile(Path path) throws ManagerSaveException {
         if (Files.notExists(path)) {
             try {
                 Files.createFile(path);
@@ -145,7 +149,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
                         Subtask subtask = StringToTaskConverter.fromStringToSubtask(param);
                         managerF.storageSubtasks.put(Integer.parseInt(param[0]), subtask);
                         // Добавляем id подзадачи в список подзадач ее эпика
-                        Epic temp = managerF.storageEpics.get(Integer.parseInt(param[5]));
+                        Epic temp = managerF.storageEpics.get(Integer.parseInt(param[8]));
                         temp.addIdSub(Integer.parseInt(param[0]));
                     }
                     if (Integer.parseInt(param[0]) > max) {
