@@ -94,7 +94,7 @@ public class Main {
                     Status.IN_PROGRESS, dateTime9, duration2));
             System.out.println("________________________________________________________________");
 
-            // Создадим второй экземпляр менеджера FileBackedTaskManager, загрузим в него сохранение из файла 
+            // Создадим второй экземпляр менеджера FileBackedTaskManager, загрузим в него из файла сохранение
             // Выведем состояние хранилища в консоль и убедимся в том, что задачи в обоих менеджерах идентичны
             FileBackedTaskManager managerF2;
             managerF2 = Managers.getDefaultManagerWithFile();
