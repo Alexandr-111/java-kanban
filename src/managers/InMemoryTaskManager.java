@@ -320,8 +320,8 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     public List<Task> getPrioritizedTasks() {
-        return priority.stream().
-                toList();
+        return priority.stream()
+                .toList();
     }
 
     private boolean validationTimeIntersections(Task task) {
