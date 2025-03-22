@@ -275,7 +275,8 @@ public class InMemoryTaskManagerTest extends TaskManagerTest<InMemoryTaskManager
                 Status.NEW, dateTime, duration));
         boolean b = manager.createTask(new Task("название_3",
                 "описание_3", Status.NEW, dateTime2, duration2));
-        assertTrue(a && b);
+        assertTrue(a);
+        assertFalse(b);
         assertEquals(1, manager.getPrioritizedTasks().size());
     }
 }

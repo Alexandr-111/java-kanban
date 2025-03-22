@@ -4,6 +4,7 @@ import managers.*;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.TreeSet;
 
 public class Main {
@@ -104,6 +105,10 @@ public class Main {
                 printS(managerF2.getSubtasks());
                 printT(managerF2.getTasks());
                 System.out.println("________________________________________________________________");
+
+                // Проверим восстановился ли после загрузки из файла список упорядоченных по времени задач
+                System.out.println("Список упорядоченных задач в managerF2:");
+                printPT(managerF2.getPrioritizedTasks());
             }
         }
     }
@@ -120,7 +125,7 @@ public class Main {
         System.out.println(records);
     }
 
-    static void printPT(TreeSet<Task> records) {
+    static void printPT(List<Task> records) {
         System.out.println(records);
     }
 }

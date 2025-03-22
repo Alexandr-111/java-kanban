@@ -7,13 +7,13 @@ public class StringToTaskConverter {
     private StringToTaskConverter() {
     }
 
-    public static Status fromStringToStatus(String st) {
+    public static Status fromStringToStatus(String string) {
         Status status = null;
-        if (st.equals("NEW")) {
+        if (string.equals("NEW")) {
             status = Status.NEW;
-        } else if (st.equals("DONE")) {
+        } else if (string.equals("DONE")) {
             status = Status.DONE;
-        } else if (st.equals("IN_PROGRESS")) {
+        } else if (string.equals("IN_PROGRESS")) {
             status = Status.IN_PROGRESS;
         }
         return status;

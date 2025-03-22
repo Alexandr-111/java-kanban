@@ -56,65 +56,65 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
 
     @Override
     public boolean createTask(Task inputTask) {
-        boolean b = super.createTask(inputTask);
+        boolean isSuccessfulCompletion = super.createTask(inputTask);
         save();
-        return b;
+        return isSuccessfulCompletion;
     }
 
     @Override
     public boolean createEpic(Epic inputEpic) {
-        boolean b = super.createEpic(inputEpic);
+        boolean isSuccessfulCompletion = super.createEpic(inputEpic);
         save();
-        return b;
+        return isSuccessfulCompletion;
     }
 
     @Override
     public boolean createSubtask(Subtask inputSubtask) {
-        boolean b = super.createSubtask(inputSubtask);
+        boolean isSuccessfulCompletion = super.createSubtask(inputSubtask);
         save();
-        return b;
+        return isSuccessfulCompletion;
     }
 
     @Override
     public boolean updateTask(Task inputTask) {
-        boolean b = super.updateTask(inputTask);
+        boolean isSuccessfulCompletion = super.updateTask(inputTask);
         save();
-        return b;
+        return isSuccessfulCompletion;
     }
 
     @Override
     public boolean updateEpic(Epic inputEpic) {
-        boolean b = super.updateEpic(inputEpic);
+        boolean isSuccessfulCompletion = super.updateEpic(inputEpic);
         save();
-        return b;
+        return isSuccessfulCompletion;
     }
 
     @Override
     public boolean updateSubtask(Subtask inputSubtask) {
-        boolean b = super.updateSubtask(inputSubtask);
+        boolean isSuccessfulCompletion = super.updateSubtask(inputSubtask);
         save();
-        return b;
+        return isSuccessfulCompletion;
     }
 
     @Override
     public boolean removeByIdTask(int search) {
-        boolean b = super.removeByIdTask(search);
+        boolean isSuccessfulCompletion = super.removeByIdTask(search);
         save();
-        return b;
+        return isSuccessfulCompletion;
     }
 
     @Override
     public int removeByIdEpic(int search) {
-        int b = super.removeByIdEpic(search);
+        int deletedSubtasks = super.removeByIdEpic(search);
         save();
-        return b;
+        return deletedSubtasks;
     }
 
     @Override
     public boolean removeByIdSubtask(int search) {
-        boolean b = super.removeByIdSubtask(search);
+        boolean isSuccessfulCompletion = super.removeByIdSubtask(search);
         save();
-        return b;
+        return isSuccessfulCompletion;
     }
 
     public static void makeNewFile(Path path) throws ManagerSaveException {
@@ -142,6 +142,8 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
                     if (param[1].equals("TASK")) {
                         Task task = StringToTaskConverter.fromStringToTask(param);
                         managerF.storageTasks.put(Integer.parseInt(param[0]), task);
+                        // Добавляем в сет с задачами и подзачами упорядоченными по времени выполнения
+                        managerF.priority.add(task);
                     } else if (param[1].equals("EPIC")) {
                         Epic epic = StringToTaskConverter.fromStringToEpic(param);
                         managerF.storageEpics.put(Integer.parseInt(param[0]), epic);
@@ -151,6 +153,8 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
                         // Добавляем id подзадачи в список подзадач ее эпика
                         Epic temp = managerF.storageEpics.get(Integer.parseInt(param[8]));
                         temp.addIdSub(Integer.parseInt(param[0]));
+                        // Добавляем в сет с задачами и подзачами упорядоченными по времени выполнения
+                        managerF.priority.add(subtask);
                     }
                     if (Integer.parseInt(param[0]) > max) {
                         max = Integer.parseInt(param[0]);
