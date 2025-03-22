@@ -1,7 +1,10 @@
 package managers;
 
+import exceptions.ManagerSaveException;
 import tasks.*;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.*;
 
 public class InMemoryTaskManager implements TaskManager {
@@ -11,6 +14,12 @@ public class InMemoryTaskManager implements TaskManager {
     protected final Map<Integer, Task> storageTasks = new HashMap<>();
     protected final Map<Integer, Subtask> storageSubtasks = new HashMap<>();
     private final HistoryManager managerH = Managers.getDefaultHistory();
+
+    // компаратор для сортировки по времени
+    private final Comparator<Task> comparator = Comparator.comparing(Task::getStartTime);
+
+    // сет с упорядоченными по времени задачами
+    protected final Set<Task> priority = new TreeSet<>(comparator);
 
     @Override
     public ArrayList<Epic> getEpics() {
@@ -41,22 +50,30 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public boolean createTask(Task inputTask) {
+        boolean isAddingAllowed;
         if (!Objects.isNull(inputTask)) {
             int id = ++counterId;
             inputTask.setId(id);
-            storageTasks.put(id, inputTask);
-            return true;
+            isAddingAllowed = addInPriority(inputTask);
+            if (isAddingAllowed) {
+                storageTasks.put(id, inputTask);
+                return true;
+            }
         }
         return false;
     }
 
     @Override
     public boolean updateTask(Task inputTask) {
+        boolean isAddingAllowed;
         if (!Objects.isNull(inputTask)) {
             int id = inputTask.getId();
             if (storageTasks.containsKey(id)) {
-                storageTasks.put(id, inputTask);
-                return true;
+                isAddingAllowed = addInPriority(inputTask);
+                if (isAddingAllowed) {
+                    storageTasks.put(id, inputTask);
+                    return true;
+                }
             }
         }
         return false;
@@ -87,16 +104,22 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public boolean createSubtask(Subtask inputSubtask) {
+        boolean isAddingAllowed;
         if (!Objects.isNull(inputSubtask)) {
             int idEpic = inputSubtask.getIdenEpic();
             if (storageEpics.containsKey(idEpic)) {
                 int id = ++counterId;
                 inputSubtask.setId(id);
-                Epic temp = storageEpics.get(idEpic);
-                temp.addIdSub(id);
-                storageSubtasks.put(id, inputSubtask);
-                calculateStatusEpic(idEpic);
-                return true;
+                isAddingAllowed = addInPriority(inputSubtask);
+                if (isAddingAllowed) {
+                    Epic temp = storageEpics.get(idEpic);
+                    temp.addIdSub(id);
+                    storageSubtasks.put(id, inputSubtask);
+                    calculateStatusEpic(idEpic);
+                    calculateDurationEpic(idEpic);
+                    calculateTimeEpic(idEpic);
+                    return true;
+                }
             }
         }
         return false;
@@ -104,13 +127,19 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public boolean updateSubtask(Subtask inputSubtask) {
+        boolean isAddingAllowed;
         if (!Objects.isNull(inputSubtask)) {
             int id = inputSubtask.getId();
             if (storageSubtasks.containsKey(id)) {
-                int idEpic = inputSubtask.getIdenEpic();
-                storageSubtasks.put(id, inputSubtask);
-                calculateStatusEpic(idEpic);
-                return true;
+                isAddingAllowed = addInPriority(inputSubtask);
+                if (isAddingAllowed) {
+                    int idEpic = inputSubtask.getIdenEpic();
+                    storageSubtasks.put(id, inputSubtask);
+                    calculateStatusEpic(idEpic);
+                    calculateDurationEpic(idEpic);
+                    calculateTimeEpic(idEpic);
+                    return true;
+                }
             }
         }
         return false;
@@ -127,16 +156,18 @@ public class InMemoryTaskManager implements TaskManager {
         if (storageEpics.containsKey(search)) {
             Epic temp = storageEpics.get(search);
             ArrayList<Integer> del = temp.getListOfId();
-            for (Integer r : del) {
-                storageSubtasks.remove(r);
-                if (managerH.existInBrowsingHistory(r)) {
-                    managerH.remove(r);
+            for (Integer item : del) {
+                storageSubtasks.remove(item);
+                if (managerH.existInBrowsingHistory(item)) {
+                    managerH.remove(item);
                 }
+                priority.removeIf(element -> element.getId() == item);
             }
             storageEpics.remove(search);
             if (managerH.existInBrowsingHistory(search)) {
                 managerH.remove(search);
             }
+
             return del.size();
         }
         return -1;
@@ -149,6 +180,7 @@ public class InMemoryTaskManager implements TaskManager {
             if (managerH.existInBrowsingHistory(search)) {
                 managerH.remove(search);
             }
+            priority.removeIf(element -> element.getId() == search);
             return true;
         }
         return false;
@@ -163,9 +195,12 @@ public class InMemoryTaskManager implements TaskManager {
             temp.deleteIdSub(search);
             storageSubtasks.remove(search);
             calculateStatusEpic(idEpic);
+            calculateDurationEpic(idEpic);
+            calculateTimeEpic(idEpic);
             if (managerH.existInBrowsingHistory(search)) {
                 managerH.remove(search);
             }
+            priority.removeIf(element -> element.getId() == search);
             return true;
         }
         return false;
@@ -239,12 +274,12 @@ public class InMemoryTaskManager implements TaskManager {
             Subtask temp = storageSubtasks.get(element);
             identifier = temp.getIdenEpic();
             if (identifier.equals(idEpic)) {
-                Status c = temp.getCondition();
+                Status status = temp.getCondition();
                 sum++;
-                if (c == Status.NEW) {
+                if (status == Status.NEW) {
                     counterNew++;
                 }
-                if (c == Status.DONE) {
+                if (status == Status.DONE) {
                     counterDone++;
                 }
             }
@@ -262,19 +297,103 @@ public class InMemoryTaskManager implements TaskManager {
     //  Метод создает копию объекта, чтобы зафиксировать
     //  его состояние на тот момент, когда пользователь просматривает задачу
     private Task takeSnapshot(int search) {
-        int a = findOutClassObject(search);
-        if (a == 1) {
+        int markerClass = findOutClassObject(search);
+        if (markerClass == 1) {
             Epic temp = storageEpics.get(search);
-            return new Epic(temp.getName(), temp.getDescription(), temp.getCondition(), temp.getId());
-        } else if (a == 2) {
+            if (temp.getStartTime() == null) {
+                return new Epic(temp.getName(), temp.getDescription(), temp.getCondition(), temp.getId());
+            } else {
+                return new Epic(temp.getName(), temp.getDescription(), temp.getCondition(), temp.getId(),
+                        temp.getStartTime(), temp.getDuration(), temp.getEndTime());
+            }
+        } else if (markerClass == 2) {
             Task temp = storageTasks.get(search);
-            return new Task(temp.getName(), temp.getDescription(), temp.getCondition(), temp.getId());
-        } else if (a == 3) {
+            return new Task(temp.getName(), temp.getDescription(), temp.getCondition(), temp.getId(),
+                    temp.getStartTime(), temp.getDuration());
+        } else if (markerClass == 3) {
             Subtask temp = storageSubtasks.get(search);
             return new Subtask(temp.getIdenEpic(), temp.getName(), temp.getDescription(),
-                    temp.getCondition(), temp.getId());
+                    temp.getCondition(), temp.getId(), temp.getStartTime(), temp.getDuration());
         } else {
             return null;
+        }
+    }
+
+    public List<Task> getPrioritizedTasks() {
+        return priority.stream()
+                .toList();
+    }
+
+    private boolean validationTimeIntersections(Task task) {
+        if (Objects.nonNull(task)) {
+            LocalDateTime start1 = task.getStartTime();
+            LocalDateTime end1 = task.getEndTime();
+
+            // Фильтруем, чтобы не проверялось пересечение с той же самой задачей,
+            // когда метод будет использоваться в методах обновления задач и подзадач.
+            List<Task> filteredList = priority.stream()
+                    .filter(item -> task.getId() != item.getId())
+                    .toList();
+
+            for (Task element : filteredList) {
+                LocalDateTime start2 = element.getStartTime();
+                LocalDateTime end2 = element.getEndTime();
+                if ((start1.isAfter(start2) && start1.isBefore(end2))       // смещение назад
+                        || (end1.isAfter(start2) && end1.isBefore(end2))    // смещение вперед
+                        || (start1.isAfter(start2) && end1.isBefore(end2))  // вхождение
+                        || (start1.isBefore(start2) && end1.isAfter(end2))  // поглощение
+                        || (start1.equals(start2) && end1.equals(end2))) {  // совпадение
+                    return false;
+                }
+            }
+            return true;
+        }
+        throw new ManagerSaveException("В метод validationTimeIntersections передан null");
+    }
+
+    public boolean addInPriority(Task task) {
+        boolean isNoIntersection;
+        if (Objects.nonNull(task)) {
+            if (priority.isEmpty()) {
+                priority.add(task);
+                return true;
+            } else {
+                isNoIntersection = validationTimeIntersections(task);
+                if (isNoIntersection) {
+                    priority.removeIf(element -> element.getId() == task.getId());
+                    priority.add(task);
+                    return true;
+                } else {
+                    System.out.println("Эта задача не может быть добавлена.\n" +
+                            "На это время установлено выполнение другой задачи.");
+                }
+            }
+        }
+        return false;
+    }
+
+    private void calculateDurationEpic(int idEpic) {
+        long sum = storageSubtasks.values().stream()
+                .filter(temp -> temp.getIdenEpic() == idEpic)
+                .mapToLong(temp -> temp.getDuration().toMinutes())
+                .sum();
+
+        Epic currentEpic = storageEpics.get(idEpic);
+        Duration duration = Duration.ofMinutes(sum);
+        currentEpic.setDuration(duration);
+    }
+
+    private void calculateTimeEpic(int idEpic) {
+        Epic currentEpic = storageEpics.get(idEpic);
+        List<Subtask> subtasks = storageSubtasks.values().stream()
+                .filter(subtask -> subtask.getIdenEpic() == idEpic)
+                .sorted(comparator)
+                .toList();
+        if (!subtasks.isEmpty()) {
+            LocalDateTime startEpic = subtasks.get(0).getStartTime();
+            LocalDateTime endEpic = subtasks.get(subtasks.size() - 1).getEndTime();
+            currentEpic.setStartTime(startEpic);
+            currentEpic.setEndTime(endEpic);
         }
     }
 }
