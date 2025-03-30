@@ -268,15 +268,16 @@ public class InMemoryTaskManagerTest extends TaskManagerTest<InMemoryTaskManager
     @Test
     void addInPriorityCheck() {
         Duration duration = Duration.ofMinutes(60L);
-        LocalDateTime dateTime = LocalDateTime.of(2025, 5, 25, 12, 30);
+        LocalDateTime dateTime = LocalDateTime.of(2025, 5, 25, 16, 30);
         Duration duration2 = Duration.ofMinutes(60L);
-        LocalDateTime dateTime2 = LocalDateTime.of(2025, 5, 25, 12, 45);
-        boolean a = manager.createTask(new Task("название_2", "описание_2",
+        LocalDateTime dateTime2 = LocalDateTime.of(2025, 5, 25, 14, 45);
+        boolean isSuccessful1 = manager.createTask(new Task("Задача_2", "описание_2",
                 Status.NEW, dateTime, duration));
-        boolean b = manager.createTask(new Task("название_3",
+        boolean isSuccessful2 = manager.createTask(new Task("Задача_3",
                 "описание_3", Status.NEW, dateTime2, duration2));
-        assertTrue(a);
-        assertFalse(b);
-        assertEquals(1, manager.getPrioritizedTasks().size());
+        assertTrue(isSuccessful1);
+        assertTrue(isSuccessful2);
+        assertEquals(2, manager.getPrioritizedTasks().size());
+        assertEquals("Задача_3", manager.getPrioritizedTasks().get(0).getName());
     }
 }

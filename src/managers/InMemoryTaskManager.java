@@ -1,6 +1,8 @@
 package managers;
 
+import exceptions.ContainsKeyException;
 import exceptions.ManagerSaveException;
+import exceptions.TimeIntersectionsException;
 import tasks.*;
 
 import java.time.Duration;
@@ -36,6 +38,7 @@ public class InMemoryTaskManager implements TaskManager {
         return new ArrayList<>(storageSubtasks.values());
     }
 
+    @Override
     public List<Task> getBrowsingHistory() {
         return managerH.getHistory();
     }
@@ -49,7 +52,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public boolean createTask(Task inputTask) {
+    public boolean createTask(Task inputTask) throws TimeIntersectionsException {
         boolean isAddingAllowed;
         if (!Objects.isNull(inputTask)) {
             int id = ++counterId;
@@ -64,7 +67,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public boolean updateTask(Task inputTask) {
+    public boolean updateTask(Task inputTask) throws TimeIntersectionsException, ContainsKeyException {
         boolean isAddingAllowed;
         if (!Objects.isNull(inputTask)) {
             int id = inputTask.getId();
@@ -74,6 +77,8 @@ public class InMemoryTaskManager implements TaskManager {
                     storageTasks.put(id, inputTask);
                     return true;
                 }
+            } else {
+                throw new ContainsKeyException();
             }
         }
         return false;
@@ -103,7 +108,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public boolean createSubtask(Subtask inputSubtask) {
+    public boolean createSubtask(Subtask inputSubtask) throws TimeIntersectionsException {
         boolean isAddingAllowed;
         if (!Objects.isNull(inputSubtask)) {
             int idEpic = inputSubtask.getIdenEpic();
@@ -126,7 +131,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public boolean updateSubtask(Subtask inputSubtask) {
+    public boolean updateSubtask(Subtask inputSubtask) throws TimeIntersectionsException, ContainsKeyException {
         boolean isAddingAllowed;
         if (!Objects.isNull(inputSubtask)) {
             int id = inputSubtask.getId();
@@ -229,8 +234,13 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public Task getByIdTask(int search) {
-        managerH.add(takeSnapshot(search));
-        return storageTasks.get(search);
+        if (takeSnapshot(search) == null) {
+            return null;
+        } else {
+            Task task = takeSnapshot(search);
+            managerH.add(task);
+            return storageTasks.get(search);
+        }
     }
 
     @Override
@@ -319,6 +329,7 @@ public class InMemoryTaskManager implements TaskManager {
         }
     }
 
+    @Override
     public List<Task> getPrioritizedTasks() {
         return priority.stream()
                 .toList();
@@ -343,7 +354,7 @@ public class InMemoryTaskManager implements TaskManager {
                         || (start1.isAfter(start2) && end1.isBefore(end2))  // вхождение
                         || (start1.isBefore(start2) && end1.isAfter(end2))  // поглощение
                         || (start1.equals(start2) && end1.equals(end2))) {  // совпадение
-                    return false;
+                    throw new TimeIntersectionsException();
                 }
             }
             return true;
@@ -351,7 +362,7 @@ public class InMemoryTaskManager implements TaskManager {
         throw new ManagerSaveException("В метод validationTimeIntersections передан null");
     }
 
-    public boolean addInPriority(Task task) {
+    public boolean addInPriority(Task task) throws TimeIntersectionsException {
         boolean isNoIntersection;
         if (Objects.nonNull(task)) {
             if (priority.isEmpty()) {
@@ -395,5 +406,11 @@ public class InMemoryTaskManager implements TaskManager {
             currentEpic.setStartTime(startEpic);
             currentEpic.setEndTime(endEpic);
         }
+    }
+
+    public List<Subtask> getSubtaskOfEpic(int idEpic) {
+        return storageSubtasks.values().stream()
+                .filter(subtask -> subtask.getIdenEpic() == idEpic)
+                .toList();
     }
 }

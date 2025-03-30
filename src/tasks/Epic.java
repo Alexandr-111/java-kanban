@@ -6,7 +6,6 @@ import java.util.ArrayList;
 
 public class Epic extends Task {
     private final ArrayList<Integer> listOfId = new ArrayList<>();
-
     private LocalDateTime startTime;
     private LocalDateTime endTime;
     private Duration duration;
@@ -78,5 +77,20 @@ public class Epic extends Task {
                 + "прод.='" + this.duration + "', "
                 + "нач.='" + this.startTime + "', "
                 + "кон.='" + this.endTime + "'\n";
+    }
+
+    public static Epic selectConstructorEpic(String name, String description, Status condition, int id,
+                                             LocalDateTime startTime, LocalDateTime endTime, Duration duration,
+                                             ArrayList<Integer> listOfId) {
+        if (startTime != null && duration != null && endTime != null) {
+            // Конструктор для эпика у которого есть хотя бы одна подзадача
+            Epic epic = new Epic(name, description, condition, id, startTime, duration, endTime);
+            epic.getListOfId().addAll(listOfId);   //Восстанавливаем список c id подзадач
+        } else if (id > 0 && startTime == null && duration == null && endTime == null) {
+            return new Epic(name, description, condition, id);   // Конструктор c id, но еще без подзадач
+        } else if (id == 0 && startTime == null && duration == null && endTime == null) {
+            return new Epic(name, description, condition);      // Конструктор для новых эпиков
+        }
+        return null;
     }
 }
