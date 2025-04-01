@@ -18,23 +18,23 @@ public class HistoryHandler extends BaseHttpHandler implements HttpHandler {
     }
 
     @Override
-    public void handle(HttpExchange httpExchange) throws IOException {
-        try {
-
+    public void handle(HttpExchange exchange) throws IOException {
+        try (HttpExchange httpExchange = exchange) {
+            List<Task> list = null;
             String[] path = httpExchange.getRequestURI().getPath().split("/");
             String method = httpExchange.getRequestMethod();
-            if (method.equals("GET") && (path.length == 2) && path[1].equals("history")) {
-                List<Task> list = manager.getBrowsingHistory();
-                sendText(httpExchange, 200, list);
-            } else {
-                httpExchange.sendResponseHeaders(404, 0);
+            try {
+                if (method.equals(GET) && (path.length == 2) && path[1].equals("history")) {
+                    list = manager.getBrowsingHistory();
+                } else {
+                    httpExchange.sendResponseHeaders(HttpStatus.NOT_FOUND.value(), 0);
+                }
+            } catch (RuntimeException e) {
+                Map<String, String> errorResponse = new HashMap<>();
+                errorResponse.put("Ошибка", "На сервере произошла ошибка, запрос не выполнен.");
+                sendText(httpExchange, HttpStatus.INTERNAL_SERVER_ERROR.value(), errorResponse);
             }
-        } catch (RuntimeException e) {
-            Map<String, String> errorResponse = new HashMap<>();
-            errorResponse.put("Ошибка", "На сервере произошла ошибка, запрос не выполнен.");
-            sendText(httpExchange, 500, errorResponse);
-        } finally {
-            httpExchange.close();
+            sendText(httpExchange, HttpStatus.OK.value(), list);
         }
     }
 }
