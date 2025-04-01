@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface TaskManager {
 
-   boolean createTask(Task inputTask);
+    boolean createTask(Task inputTask);
 
     boolean updateTask(Task inputTask);
 
@@ -50,4 +50,8 @@ public interface TaskManager {
     void removeTasks();
 
     void removeSubtasks();
+
+    List<Subtask> getSubtaskOfEpic(int idEpic);
+
+    List<Task> getPrioritizedTasks();
 }
